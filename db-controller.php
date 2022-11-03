@@ -8,14 +8,14 @@ function login($username, $password) {
     $statement = $db->prepare($query);
     $statement->bindValue(':uname', $uname);
     $statement->execute();
-    $user = $statement->fetchAll(); // just want 1 person
-
+    $user = $statement->fetch(); // just want 1 person
+    #var_dump($user);
     if ($user === false) { // If there is an error:
         $error_msg = "Error occurred while logging in.";
     } else if (!empty($user)) { // If there is no error:
-        if (password_verify($password, $user[0]["password"])) { // user[0] would be the only user if they exist
-            $_SESSION["username"] = $data[0]["username"];
-            $_SESSION["logged_in"] = true;
+        if (password_verify($password, $user['password'])) { // only works with creating user through password hash
+            $_SESSION["username"] = $user['username'];
+            $_SESSION["logged_in"] = True;
             $statement->closeCursor();
             return;
         } else {
@@ -29,7 +29,7 @@ function login($username, $password) {
   catch (PDOException $e){
     echo 'Cannot find user';
   }
-  $statement->closeCursor();
+
 
 
 }

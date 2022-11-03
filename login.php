@@ -11,20 +11,27 @@
 <?php
 require("connect-db.php");      // include("connect-db.php");
 require("db-controller.php");
+$error_msg = NULL;
+$login_err = False;
 ?>
 
 <?php
 if ($_SERVER['REQUEST_METHOD'] == 'POST')
 {
+
   if (!empty($_POST['login']))
   {
-      login($_POST['username'], $_POST['password']);
-      if(isset($_SESSION['logged_in']))
-      {
-          header("Location: profile.html");
-          exit;
-      }
+    login($_POST['username'], $_POST['password']);
 
+    if(isset($_SESSION['logged_in']))
+    {
+        header("Location: profile.html");
+        exit;
+    }
+    else {
+      $error_msg = "User does not exist";
+      $login_err = True;
+    }
   }
 }
 ?>
@@ -59,8 +66,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
         <h1 class="text-center fs-1">Recipen</h1>
 
         <div class="col-xl-6 mb-2 align-items-center justify-content-center">
+          <?php
+            if($login_err){
+                echo '<div class="alert alert-danger">' . $error_msg . '</div>';
+            }
+          ?>
 
-          <form action="../db-controller.php" method="post">
+          <form action="login.php" method="post">
 
             <!-- Username input -->
             <!-- This regex pattern makes a username have to contrain only letters and numbers, 6-20 chars.
