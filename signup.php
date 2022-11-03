@@ -1,14 +1,30 @@
 <?php
 require("connect-db.php");      // include("connect-db.php");
 require("db-controller.php");
+$error_msg = '';
 ?>
 
 <?php
 if ($_SERVER['REQUEST_METHOD'] == 'POST')
 {
+
   if (!empty($_POST['signup']))
   {
-      signup($_POST['username'], $POST['email'] , $_POST['password'], $_POST['password_check']);
+
+      if ($_POST['password'] != $_POST['password_check']) {
+        $error_msg = 'Passwords do not match';
+      }
+      else {
+        signup($_POST['username'], $_POST['firstname'], $_POST['lastname'], $_POST['password'], $_POST['password_check']);
+        if(isset($_SESSION['logged_in']))
+        {
+            header("Location: profile.html");
+            exit;
+        }
+        else {
+          $error_msg = "Error creating account";
+        }
+      }
   }
 }
 ?>
@@ -57,8 +73,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 
         <div class="py-5 d-flex align-items-center justify-content-center">
 
-          <form  method="post">
-
+          <form action="signup.php" method="post">
+            <?php
+              if (!empty($error_msg)) {
+                echo "<div class='alert alert-danger'>$error_msg</div>";
+              }
+            ?>
             <!-- Username input -->
             <!-- This regex pattern makes a username have to contrain letters and numbers, 6-20 chars.
               -->
@@ -76,13 +96,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
             </div>
 
 
-            <!-- Email input -->
+            <!-- first name input -->
             <div class="form-outline mb-4">
-              <label class="form-label" for="email">Email Address</label>
+              <label class="form-label" for="firstname">First Name</label>
               <input
-                type="email"
-                name="email"
-                id="email"
+                type="text"
+                name="firstname"
+                id="firstname"
+                pattern="[A-Za-z]{1,32}"
+                class="form-control form-control-lg"
+                required
+              />
+            </div>
+
+            <!-- last name input -->
+            <div class="form-outline mb-4">
+              <label class="form-label" for="lastname">Last Name</label>
+              <input
+                type="text"
+                name="lastname"
+                id="lastname"
+                pattern="[A-Za-z]{1,32}"
                 class="form-control form-control-lg"
                 required
               />
@@ -126,9 +160,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 
             <!-- Submit button -->
             <div class="col text-center">
-              <button id="signup" name="signup" type="submit" class="btn btn-primary btn-block btn-lg">
-                <span>Create Account</span>
-              </button>
+              <input id="signup" name="signup" type="submit" value="Create Account" class="btn btn-primary btn-block btn-lg">
+              </input>
             </div>
           </form>
         </div>

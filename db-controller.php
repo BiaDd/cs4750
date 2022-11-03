@@ -29,47 +29,44 @@ function login($username, $password) {
   catch (PDOException $e){
     echo 'Cannot find user';
   }
-
-
-
 }
 
 
-// function signup($username, $firstname, $lastname, $password, $password_check) {
-//   #echo "yo";
-//   // need to check if passwords match first
-//   if ($password !== $password_check) {
-//     echo 'Passwords do not match'
-//   }
-//   else {
-//     // need to check if username already appears in the database
-//     global $db;
-//     $checkExists = "SELECT * FROM user WHERE username=:username";
-//     $createUser = "INSERT INTO user VALUES (:username, :firstname, :lastname, :password)";
-//     $uname = strtolower($username);
-//     try {
-//       $statement = $db->prepare($checkExists);
-//       $statement->bindValue(':uname', $uname);
-//       $statement->execute();
-//       $statement->closeCursor();
-//       $user = $statement->fetch();
-//
-//       // if user exists echo and return;
-//       // else use create user query
-//       // redirect to profile.html
-//       $statement->closeCursor();
-//
-//
-//       header("Location: pages/profile.php")
-//       return;
-//
-//     }
-//     catch (PDOException $e){
-//       echo 'Error adding friend';
-//     }
-//
-//   }
-// }
+function signup($username, $firstname, $lastname, $password, $password_check) {
+  #echo "yo";
+  // need to check if passwords match first
 
+  // need to check if username already appears in the database
+  global $db;
+  $checkExists = "SELECT * FROM user WHERE username=:username";
+  $createUser = "INSERT INTO user (username, firstName, lastName, password) VALUES (:username, :firstName, :lastName, :password)";
+  $uname = strtolower($username);
+  try {
+    $statement = $db->prepare($checkExists);
 
+    $statement->bindValue(':username', $uname);
+    $statement->execute();
+    $user = $statement->fetch();
+    $statement->closeCursor();
+    // if user exists echo and return;
+
+    if (!empty($user)) {
+      echo "That username has already been taken";
+    } else {
+      $insert = $db->prepare($createUser);
+      $insert->bindValue(':username', $uname);
+      $insert->bindValue(':firstName', $firstname);
+      $insert->bindValue(':lastName', $lastname);
+      $insert->bindValue(':password', password_hash($password, PASSWORD_DEFAULT));
+      $insert->execute();
+      $statement->closeCursor();
+      $_SESSION["username"] = $uname;
+      $_SESSION["logged_in"] = True;
+      return;
+    }
+  }
+  catch (PDOException $e){
+    echo 'Error adding friend';
+  }
+}
  ?>

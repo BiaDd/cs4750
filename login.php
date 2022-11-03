@@ -11,8 +11,7 @@
 <?php
 require("connect-db.php");      // include("connect-db.php");
 require("db-controller.php");
-$error_msg = NULL;
-$login_err = False;
+$error_msg = '';
 ?>
 
 <?php
@@ -29,8 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
         exit;
     }
     else {
-      $error_msg = "User does not exist";
-      $login_err = True;
+      $error_msg = "Error logging in";
     }
   }
 }
@@ -67,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 
         <div class="col-xl-6 mb-2 align-items-center justify-content-center">
           <?php
-            if($login_err){
+            if(!empty($error_msg)){
                 echo '<div class="alert alert-danger">' . $error_msg . '</div>';
             }
           ?>
