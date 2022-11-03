@@ -9,6 +9,7 @@
 -->
 
 <?php
+session_start();
 require("connect-db.php");      // include("connect-db.php");
 require("db-controller.php");
 $error_msg = '';
@@ -24,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 
     if(isset($_SESSION['logged_in']))
     {
-        header("Location: profile.html");
+        header("Location: profile.php");
         exit;
     }
     else {

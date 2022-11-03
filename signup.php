@@ -1,4 +1,5 @@
 <?php
+session_start();
 require("connect-db.php");      // include("connect-db.php");
 require("db-controller.php");
 $error_msg = '';
@@ -18,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
         signup($_POST['username'], $_POST['firstname'], $_POST['lastname'], $_POST['password'], $_POST['password_check']);
         if(isset($_SESSION['logged_in']))
         {
-            header("Location: profile.html");
+            header("Location: profile.php");
             exit;
         }
         else {
