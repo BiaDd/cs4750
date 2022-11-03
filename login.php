@@ -8,6 +8,28 @@
 *  Software License: MIT license
 -->
 
+<?php
+require("connect-db.php");      // include("connect-db.php");
+require("db-controller.php");
+?>
+
+<?php
+if ($_SERVER['REQUEST_METHOD'] == 'POST')
+{
+  if (!empty($_POST['login']))
+  {
+      login($_POST['username'], $_POST['password']);
+      if(isset($_SESSION['logged_in']))
+      {
+          header("Location: profile.html");
+          exit;
+      }
+
+  }
+}
+?>
+
+
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -38,7 +60,7 @@
 
         <div class="col-xl-6 mb-2 align-items-center justify-content-center">
 
-          <form method="post">
+          <form action="../db-controller.php" method="post">
 
             <!-- Username input -->
             <!-- This regex pattern makes a username have to contrain only letters and numbers, 6-20 chars.
@@ -74,14 +96,14 @@
 
             <!-- Submit button -->
             <div class="col text-center">
-              <button id="loginButton" type="submit" class="btn btn-primary btn-block btn-lg">
-                <span>Sign in</span>
-              </button>
+              <input id="login" name="login" type="submit" value="Login" class="btn btn-primary btn-block btn-lg">
+
+              </input>
             </div>
 
             <p class="text-center text-muted mt-5 mb-3">
               First visit?
-              <a  href="signup.php" class="fw-bold text-body"><u id="signUp">Register here</u></a>
+              <a href="signup.php" class="fw-bold text-body"><u id="signUp">Register here</u></a>
             </p>
           </form>
         </div>
@@ -89,7 +111,7 @@
     </div>
 
 
-    <?php include('../templates/footer.html') ?>
+    <?php include('footer.html') ?>
 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"

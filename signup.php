@@ -1,3 +1,19 @@
+<?php
+require("connect-db.php");      // include("connect-db.php");
+require("db-controller.php");
+?>
+
+<?php
+if ($_SERVER['REQUEST_METHOD'] == 'POST')
+{
+  if (!empty($_POST['signup']))
+  {
+      signup($_POST['username'], $POST['email'] , $_POST['password'], $_POST['password_check']);
+  }
+}
+?>
+
+
 <!DOCTYPE html>
 <!--
 *  REFERENCES
@@ -110,7 +126,7 @@
 
             <!-- Submit button -->
             <div class="col text-center">
-              <button type="submit" class="btn btn-primary btn-block btn-lg">
+              <button id="signup" name="signup" type="submit" class="btn btn-primary btn-block btn-lg">
                 <span>Create Account</span>
               </button>
             </div>
