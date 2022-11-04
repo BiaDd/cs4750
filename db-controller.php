@@ -59,9 +59,10 @@ function signup($username, $firstname, $lastname, $password, $password_check) {
       $insert->bindValue(':lastName', $lastname);
       $insert->bindValue(':password', password_hash($password, PASSWORD_DEFAULT));
       $insert->execute();
-      $statement->closeCursor();
+      $insert->closeCursor();
       $_SESSION["username"] = $uname;
       $_SESSION["logged_in"] = True;
+
       return;
     }
   }
@@ -69,4 +70,21 @@ function signup($username, $firstname, $lastname, $password, $password_check) {
     echo 'Error adding friend';
   }
 }
+
+
+function getCart($username) {
+  return [];
+}
+
+function getCartPrice($username) {
+  global $db;
+  $query = "SELECT totalPrice FROM grocerycart NATURAL JOIN usercart NATURAL JOIN user WHERE usercart.userID = user.userID AND user.username=:username";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':username', $username);
+  $statement->execute();
+  $result = $statement->fetch();
+  $statement->closeCursor();
+  return $result['totalPrice'];
+}
+
  ?>
