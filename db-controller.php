@@ -15,7 +15,7 @@ function login($username, $password) {
     } else if (!empty($user)) { // If there is no error:
         if (password_verify($password, $user['password'])) { // only works with creating user through password hash
             $_SESSION["username"] = $user['username'];
-            $_SESSION["logged_in"] = True;
+            $_SESSION["authenticated"] = true;
             $statement->closeCursor();
             return;
         } else {
@@ -61,7 +61,7 @@ function signup($username, $firstname, $lastname, $password, $password_check) {
       $insert->execute();
       $insert->closeCursor();
       $_SESSION["username"] = $uname;
-      $_SESSION["logged_in"] = True;
+      $_SESSION["authenticated"] = True;
 
       return;
     }

@@ -10,8 +10,8 @@
 
 <?php
 session_start();
-require("connect-db.php");      // include("connect-db.php");
-require("db-controller.php");
+require("../connect-db.php");      // include("connect-db.php");
+require("../db-controller.php");
 $error_msg = '';
 ?>
 
@@ -23,7 +23,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
   {
     login($_POST['username'], $_POST['password']);
 
-    if(isset($_SESSION['logged_in']))
+    if(isset($_SESSION['authenticated']))
     {
         header("Location: profile.php");
         exit;
@@ -122,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     </div>
 
 
-    <?php include('footer.html') ?>
+    <?php include('../templates/footer.html') ?>
 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"

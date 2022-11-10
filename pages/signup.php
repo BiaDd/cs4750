@@ -1,7 +1,7 @@
 <?php
 session_start();
-require("connect-db.php");      // include("connect-db.php");
-require("db-controller.php");
+require("../connect-db.php");      // include("connect-db.php");
+require("../db-controller.php");
 $error_msg = '';
 ?>
 

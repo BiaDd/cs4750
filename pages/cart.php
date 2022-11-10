@@ -1,6 +1,6 @@
 <?php
-require("connect-db.php");
-require("db-controller.php");
+require("../connect-db.php");
+require("../db-controller.php");
 session_start();
 $list_of_recipes = getCart($_SESSION['username']);
 $cart_price = getCartPrice($_SESSION['username']);
