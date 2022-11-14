@@ -21,10 +21,13 @@ if (isset($_SESSION['authenticated'])) {
             <div class="collapse navbar-collapse" id="navbarItems">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" href="#">Home</a>
+                        <a class="nav-link active" href="home.php">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Profile</a>
+                        <a class="nav-link" href="profile.php">Profile</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="recipe.php">Recipes</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="cart.php">Cart

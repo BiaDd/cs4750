@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
         signup($_POST['username'], $_POST['firstname'], $_POST['lastname'], $_POST['password'], $_POST['password_check']);
         if(isset($_SESSION['logged_in']))
         {
-            header("Location: profile.php");
+            header("Location: home.php");
             exit;
         }
         else {

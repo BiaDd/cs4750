@@ -31,10 +31,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
         <title>Cart</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     </head>
+    <?php include('../templates/header.php') ?>
     <body>
         <div class="container" style="margin-top: 15px;">
             <div class="row col-xs-8">
-                <h1>Your Cart $<?php echo $cart_price ?></h1>
+                <h1>Your Cart</h1>
 
             </div>
             <div class="row justify-content-center">
@@ -43,24 +44,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
             <hr></hr>
             <div class="row mt-2 justify-content-center">
 
-                <div class="col-4">
+                <div class="">
                     <h3>Your Recipes</h3>
-                    <table class="w3-table w3-bordered w3-card-4 center" style="width:100%">
+                    <table class="w3-table center" style="width:100%">
                         <thead>
                             <tr style="background-color:#B0B0B0">
-                              <th width="33%">Recipe Name
-                              <th width="33%">Price
-                              <th width="33%">Delete
+                              <th width="20%">Recipe Name
+                              <th width="40%">Description
+                              <th width="15%">Amount
+                              <th width="15%">Price
+                              <th width="10%">
                             </tr>
                         </thead>
                     <?php foreach ($list_of_recipes as $r): ?>
                       <tr>
                         <td><?php echo $r['recipeName']; ?></td>
+                        <td><?php echo $r['description']; ?></td>
+                        <td><?php echo $r['amount']; ?></td>
                         <td><?php echo $r['price']; ?></td>
                         <td>
                           <form action="cart.php" method="post">
                             <input type ="submit" name="btnAction" value="Delete" class="btn btn-primary" title="click to remove recipe"/>
-                            <input type="hidden" name="friend_to_remove"
+                            <input type="hidden" name="recipe_to_remove"
                             value="<?php echo $r['recipeName'];?>"
                             />
                           </form>
@@ -69,9 +74,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
                     <?php endforeach; ?>
                     </table>
               </div>
+              <hr></hr>
+              <h2>Your Total: </h2>
+
             </div>
 
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
     </body>
+    <?php include('../templates/footer.html') ?>
 </html>
