@@ -33,7 +33,7 @@ $name = $_SESSION['username'];
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css"
     />
 
-    <title>Recipen - Profile</title>
+    <title>Recipen - Homepage</title>
   </head>
   <?php include('../templates/header.php') ?>
   <body>
@@ -41,7 +41,7 @@ $name = $_SESSION['username'];
       echo "<h3 class='text-center'>Hello chef $name!</h3>";
     ?>
 
-    <h4>Your Recipes <a href="recipe.php">Add Recipe</a> </h4>
+    <h4>Your Recipes <a href="addRecipe.php">Add Recipe</a> </h4>
     <div class="list-group">
       <a href="#" class="list-group-item list-group-item-action">
         Cras justo odio
