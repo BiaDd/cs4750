@@ -4,14 +4,44 @@ require("../connect-db.php");      // include("connect-db.php");
 require("../db-controller.php");
 
 $name = $_SESSION['username'];
-$ingredients = array("Essentials"=>[],"Baking"=>[],"Vegetables"=>[],"Fruits"=>[],"Nuts"=>[],"Cheeses"=>[],"Meats"=>[],"Seafood"=>[], "Seasonings"=>[],"Sauces"=>[],"Oils"=>[]);
-
+$ingredients_used = array();
+$ingredients = array("Essentials"=>array("Potatoes"),"Baking"=>array("Yeast"),"Vegetables"=>array("Carrots"),"Fruits"=>array("Apple"),"Nuts"=>array("Almonds"),"Cheeses"=>array("Pepper Jack"),"Meats"=>array("Beef"),"Seafood"=>array("Shrimp"), "Seasonings"=>array("Paprika"),"Sauces"=>array("Tomato"));
 ?>
 
 <!--
 Used some of the code from
 https://www.w3schools.com/howto/howto_js_form_steps.asp
+
+#https://makitweb.com/get-checked-checkboxes-value-with-php/
 -->
+
+
+<?php
+if ($_SERVER['REQUEST_METHOD'] == 'POST')
+{
+  if (!empty($_POST['btnAction'] && $_POST['btnAction'] == 'Add') ) {
+    echo $_POST['rname'];
+    echo "\n";
+    echo $_POST['rdescription'];
+    echo "\n";
+    foreach($_POST['recipe_ingredients'] as $key=>$value){
+        if ($value == '0' || !is_numeric($value)) {
+          unset($_POST['recipe_ingredients'][$key]);
+        }
+    }
+
+    foreach($_POST['recipe_ingredients'] as $key=>$value){
+        echo $key.": Quantity ".$value.'<br/>';
+    }
+  }
+}
+
+
+?>
+
+
+
+
 
 <html lang="en">
   <head>
@@ -49,10 +79,10 @@ https://www.w3schools.com/howto/howto_js_form_steps.asp
           <h1>Add Recipe:</h1>
           <!-- One "tab" for each step in the form: -->
           <div class="tab">Name:
-            <p><input placeholder="Recipe name..." oninput="this.className = ''" name="rname"></p>
+            <p><input placeholder="Recipe name..." name="rname" id="rname"></p>
           </div>
           <div class="tab">Description:
-            <p><input oninput="this.className = ''" name="description"></p>
+            <p><input name="rdescription" id="rdescription"></p>
           </div>
           <div class="tab">Ingredients:
             <!--
@@ -62,22 +92,22 @@ https://www.w3schools.com/howto/howto_js_form_steps.asp
             Generate 2 side by side input boxes, one for checkboxes, one for quantity
             -->
             <div class="accordion" id="accordionExample">
-
-
               <?php foreach ($ingredients as $category => $ingredient_list): ?>
                 <div class="accordion-item">
-                  <h2 class="accordion-header" id="headingOne">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                  <h2 class="accordion-header" id="<?php echo $category;?>Heading">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#<?php echo $category;?>Collapse" aria-expanded="true" aria-controls="<?php echo $category;?>Collapse">
                       <?php echo $category;?>
                     </button>
                   </h2>
-                  <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                  <div id="<?php echo $category;?>Collapse" class="accordion-collapse collapse " aria-labelledby="<?php echo $category;?>Heading" data-bs-parent="#accordionExample">
                     <div class="accordion-body">
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">
-                        <label class="form-check-label" for="inlineCheckbox1">Potatoes</label>
-                      </div>
-                      <input type="number" id="quantity" name="quantity" min="1" max="5" value="1" style="width:50px;margin-left: 15px;"> Grams
+                      <?php foreach ($ingredient_list as $ingredient_name): ?>
+                        <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" name='recipe_ingredients[]' id="<?php echo $ingredient_name;?>">
+                          <label class="form-check-label" for="<?php echo $ingredient_name;?>"><?php echo $ingredient_name;?></label>
+                        </div>
+                        <input type="number" id="quantity" name='recipe_ingredients[<?php echo $ingredient_name;?>]' min="0" max="5" value="0" style="width:50px;margin-left: 15px;"> Grams
+                      <?php endforeach; ?>
                     </div>
                   </div>
                 </div>
@@ -88,6 +118,7 @@ https://www.w3schools.com/howto/howto_js_form_steps.asp
             <div style="float:right;">
               <button type="button" id="prevBtn" onclick="nextPrev(-1)">Previous</button>
               <button type="button" id="nextBtn" onclick="nextPrev(1)">Next</button>
+              <input name='btnAction' type="submit" id="submitBtn" class="btn btn-primary" value="Add" title="Add a friend"></input>
             </div>
           </div>
           <!-- Circles which indicates the steps of the form: -->
@@ -115,9 +146,11 @@ https://www.w3schools.com/howto/howto_js_form_steps.asp
         document.getElementById("prevBtn").style.display = "inline";
       }
       if (n == (x.length - 1)) {
-        document.getElementById("nextBtn").innerHTML = "Submit";
+        document.getElementById("nextBtn").style.display = "none";
+        document.getElementById("submitBtn").style.display = "inline";
       } else {
         document.getElementById("nextBtn").innerHTML = "Next";
+        document.getElementById("submitBtn").style.display = "none";
       }
       //... and run a function that will display the correct step indicator:
       fixStepIndicator(n)
