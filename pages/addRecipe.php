@@ -35,11 +35,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
           echo $key.": Quantity ".$value.'<br/>';
       }
     }
-    // addRecipe($username, $_POST['rname'], $_POST['rdescription'], $_POST['recipe_ingredients']);
+    addRecipe($_POST['rname'], $_POST['rdescription'], $_POST['recipe_ingredients']);
     // set the recipe in the db and redirect to recipe page
     // tbh the checkbox doesn't do anything
 
     // redirect to page of recipe
+    // stuff
   }
 }
 

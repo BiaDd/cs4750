@@ -50,7 +50,6 @@ function signup($username, $firstname, $lastname, $password, $password_check) {
     $user = $statement->fetch();
     $statement->closeCursor();
     // if user exists echo and return;
-
     if (!empty($user)) {
       echo "That username has already been taken";
     } else {
@@ -118,10 +117,10 @@ function addRecipe($rname, $rdescription, $ringredients) {
 
   // insert recipe into recipe table with 0 as initial price and 0 as initial rating
   $insertRecipe = "INSERT INTO recipe (recipeName, description, userID, rating, price) VALUES (:rname, :rdescription, :userID, :rating, :price)";
-  $insert = $db->prepare($createUser);
+  $insert = $db->prepare($insertRecipe);
   $insert->bindValue(':rname', $rname);
   $insert->bindValue(':rdescription', $rdescription);
-  $insert->bindValue(':userID', $_SESSION["username"]);
+  $insert->bindValue(':userID', $_SESSION["uid"]);
   $insert->bindValue(':rating', 0.0);
   $insert->bindValue(':price', 0.0);
   $insert->execute();
@@ -133,11 +132,15 @@ function addRecipe($rname, $rdescription, $ringredients) {
   $get_ingredientID = "SELECT ingredientID FROM ingredient WHERE ingredientName=:iname";
   $ingredientID_list = array();
   $selectID = $db->prepare($get_ingredientID);
-  foreach ($ringredients as $ingredient) {
+  #var_dump($ringredients);
+  #var_dump($ringredients);
+  foreach ($ringredients as $ingredient=>$quantity) {
+    #echo $ingredient;
     $selectID->bindValue(':iname', $ingredient);
     $selectID->execute();
     $id = $selectID->fetch();
-    $ingredientID_list[$ingredient] = $id;
+    $ingredientID_list[$ingredient] = $id[0];
+    #var_dump($ingredientID_list);
     $selectID->closeCursor();
   }
 
@@ -160,7 +163,8 @@ function addRecipe($rname, $rdescription, $ringredients) {
   AS table1 GROUP BY recipeID";
   $statement = $db->prepare($getPrice);
   $statement->execute();
-  $price = $statement->fetch();
+  $price = number_format($statement->fetch()["price"], 2);
+  #var_dump($price);
   $statement->closeCursor();
 
   //update price for sql table
@@ -188,6 +192,7 @@ function getCartPrice($username) {
   $statement->execute();
   $result = $statement->fetch();
   $statement->closeCursor();
+  var_dump($result);
   return $result['totalPrice'];
 }
 
