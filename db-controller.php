@@ -15,6 +15,7 @@ function login($username, $password) {
     } else if (!empty($user)) { // If there is no error:
         if (password_verify($password, $user['password'])) { // only works with creating user through password hash
             $_SESSION["username"] = $user['username'];
+            $_SESSION["uid"] = $user['userID'];
             $_SESSION["authenticated"] = true;
             $statement->closeCursor();
             return;
@@ -61,14 +62,19 @@ function signup($username, $firstname, $lastname, $password, $password_check) {
       $insert->execute();
       $insert->closeCursor();
       $_SESSION["username"] = $uname;
+      $_SESSION["uid"] = $db->lastInsertId();
       $_SESSION["authenticated"] = True;
 
       return;
     }
   }
   catch (PDOException $e){
-    echo 'Error adding friend';
+    echo 'Error signing up';
   }
+}
+
+function getUser($username) {
+
 }
 
 
@@ -76,9 +82,89 @@ function getCart($username) {
   return [];
 }
 
+
+function getIngredients() {
+  $ingredient_list = array("Essentials"=>array(),"Baking"=>array(),"Vegetables"=>array(),"Fruits"=>array(),"Nuts"=>array(),"Cheeses"=>array(),"Meats"=>array(),"Seafood"=>array(), "Seasonings"=>array(),"Sauces"=>array());
+
+  # need to have multiple select statements for each category of ingredients
+
+  return $ingredient_list;
+}
+
+
+// this function only runs after user is logged in
+function addRecipe($rname, $rdescription, $ringredients) {
+  global $db;
+
+  // check for if recipe already exists?
+
+  // insert recipe into recipe table with 0 as initial price and 0 as initial rating
+  $insertRecipe = "INSERT INTO recipe (recipeName, description, userID, rating, price) VALUES (:rname, :rdescription, :userID, :rating, :price)";
+  $insert = $db->prepare($createUser);
+  $insert->bindValue(':rname', $rname);
+  $insert->bindValue(':rdescription', $rdescription);
+  $insert->bindValue(':userID', $_SESSION["username"]);
+  $insert->bindValue(':rating', 0.0);
+  $insert->bindValue(':price', 0.0);
+  $insert->execute();
+  $insert->closeCursor();
+
+  // add ingredient recipe links to ingredient recipe table
+  // need to get list of all ingredient ID in list
+  $get_ingredientID = "SELECT ingredientID FROM ingredient WHERE ingredientName=:iname";
+  $ingredientID_list = array();
+  $selectID = $db->prepare($get_ingredientID);
+  foreach ($ringredients as $ingredient) {
+    $selectID->bindValue(':iname', $ingredient);
+    $selectID->execute();
+    $id = $selectID->fetch();
+    $ingredientID_list[$ingredient] = $id;
+    $selectID->closeCursor();
+  }
+
+  $recipeID = $db->lastInsertId();
+  $insertIngredientRecipe = "INSERT INTO recipeingredient (ingredientID, recipeID, quantity) VALUES (:ingredientID, :recipeID, :quantity)";
+  $insert = $db->prepare($insertIngredientRecipe);
+  foreach ($ringredients as $ingredient => $quantity) {
+    // get id of ingredients in the ingredient list from ingredient name
+    // bind values and insert into the thing
+    $insert->bindValue(':ingredientID', $ingredientID_list[$ingredient]);
+    $insert->bindValue(':recipeID', $recipeID);
+    $insert->bindValue(':quantity', $quantity);
+    $insert->execute();
+    $insert->closeCursor(); // maybe have this line outside the loop?
+  }
+
+  $getPrice =
+  "SELECT table1.recipeID, SUM(table1.totalPrice) AS price
+  FROM (SELECT recipeingredient.ingredientID, recipeingredient.recipeID, recipeingredient.quantity * ingredient.price AS totalPrice FROM recipeingredient, ingredient WHERE ingredient.ingredientID = recipeingredient.ingredientID)
+  AS table1 GROUP BY recipeID";
+  $statement = $db->prepare($getPrice);
+  $statement->execute();
+  $price = $statement->fetch();
+  $statement->closeCursor();
+
+  //update price for sql table
+  $changePrice = "UPDATE recipe SET price=$price WHERE recipeID=$recipeID";
+  $statement = $db->prepare($changePrice);
+  $statement->execute();
+  $statement->closeCursor();
+
+  return;
+}
+
+
+
 function getCartPrice($username) {
   global $db;
-  $query = "SELECT totalPrice FROM grocerycart NATURAL JOIN usercart NATURAL JOIN user WHERE usercart.userID = user.userID AND user.username=:username";
+
+  // need to redo this
+  $query =
+  "SELECT recipecart.cartID, SUM(table2.price)
+  AS cartPrice FROM recipecart, (SELECT table1.recipeID, SUM(table1.totalPrice) AS price FROM
+  (SELECT recipeingredient.ingredientID, recipeingredient.recipeID, recipeingredient.quantity * ingredient.price AS totalPrice FROM recipeingredient, ingredient WHERE ingredient.ingredientID = recipeingredient.ingredientID)
+  AS table1 GROUP BY recipeID) AS table2 WHERE table2.recipeID = recipecart.recipeID GROUP BY cartID";
+
   $statement = $db->prepare($query);
   $statement->bindValue(':username', $username);
   $statement->execute();

@@ -3,9 +3,9 @@ session_start();
 require("../connect-db.php");      // include("connect-db.php");
 require("../db-controller.php");
 
-$name = $_SESSION['username'];
+$username = $_SESSION['username'];
 $ingredients_used = array();
-$ingredients = array("Essentials"=>array("Potatoes"),"Baking"=>array("Yeast"),"Vegetables"=>array("Carrots"),"Fruits"=>array("Apple"),"Nuts"=>array("Almonds"),"Cheeses"=>array("Pepper Jack"),"Meats"=>array("Beef"),"Seafood"=>array("Shrimp"), "Seasonings"=>array("Paprika"),"Sauces"=>array("Tomato"));
+$ingredients = getIngredients();
 ?>
 
 <!--
@@ -33,6 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     foreach($_POST['recipe_ingredients'] as $key=>$value){
         echo $key.": Quantity ".$value.'<br/>';
     }
+    addRecipe($username, $_POST['rname'], $_POST['rdescription'], $_POST['recipe_ingredients']);
+    // set the recipe in the db and redirect to recipe page
+    // tbh the checkbox doesn't do anything
+
   }
 }
 
