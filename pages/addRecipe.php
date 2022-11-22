@@ -24,19 +24,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     echo "\n";
     echo $_POST['rdescription'];
     echo "\n";
-    foreach($_POST['recipe_ingredients'] as $key=>$value){
-        if ($value == '0' || !is_numeric($value)) {
-          unset($_POST['recipe_ingredients'][$key]);
-        }
-    }
+    if (!empty($_POST['recipe_ingredients'])) {
+      foreach($_POST['recipe_ingredients'] as $key=>$value){
+          if ($value == '0' || !is_numeric($value)) {
+            unset($_POST['recipe_ingredients'][$key]);
+          }
+      }
 
-    foreach($_POST['recipe_ingredients'] as $key=>$value){
-        echo $key.": Quantity ".$value.'<br/>';
+      foreach($_POST['recipe_ingredients'] as $key=>$value){
+          echo $key.": Quantity ".$value.'<br/>';
+      }
     }
-    addRecipe($username, $_POST['rname'], $_POST['rdescription'], $_POST['recipe_ingredients']);
+    // addRecipe($username, $_POST['rname'], $_POST['rdescription'], $_POST['recipe_ingredients']);
     // set the recipe in the db and redirect to recipe page
     // tbh the checkbox doesn't do anything
 
+    // redirect to page of recipe
   }
 }
 
@@ -111,6 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
                           <label class="form-check-label" for="<?php echo $ingredient_name;?>"><?php echo $ingredient_name;?></label>
                         </div>
                         <input type="number" id="quantity" name='recipe_ingredients[<?php echo $ingredient_name;?>]' min="0" max="5" value="0" style="width:50px;margin-left: 15px;"> Grams
+                        <br />
                       <?php endforeach; ?>
                     </div>
                   </div>
@@ -153,6 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
         document.getElementById("nextBtn").style.display = "none";
         document.getElementById("submitBtn").style.display = "inline";
       } else {
+        document.getElementById("nextBtn").style.display = "inline";
         document.getElementById("nextBtn").innerHTML = "Next";
         document.getElementById("submitBtn").style.display = "none";
       }

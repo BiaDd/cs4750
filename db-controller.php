@@ -82,11 +82,29 @@ function getCart($username) {
   return [];
 }
 
-
 function getIngredients() {
-  $ingredient_list = array("Essentials"=>array(),"Baking"=>array(),"Vegetables"=>array(),"Fruits"=>array(),"Nuts"=>array(),"Cheeses"=>array(),"Meats"=>array(),"Seafood"=>array(), "Seasonings"=>array(),"Sauces"=>array());
+  global $db;
+  $ingredient_list = array("Additive"=>array(),"Baking"=>array(),"Cereal"=>array(),"Dairy"=>array(),"Fish"=>array(),"Fruits"=>array(),"Meats"=>array(),"Nuts"=>array(),"Seafood"=>array(), "Seasonings"=>array(),"Sauces"=>array(),"Vegetables"=>array());
 
   # need to have multiple select statements for each category of ingredients
+  $ingredient_query = "SELECT ingredientName FROM ingredient WHERE ingredientType=:type";
+
+  // append ingredients to whichever ingredients it corresponds with and return
+  $selectID = $db->prepare($ingredient_query);
+  foreach ($ingredient_list as $key=>$list) {
+    $selectID->bindValue(':type', $key);
+    $selectID->execute();
+    $result = $selectID->fetchAll();
+
+    foreach ($result as $ingredient) {
+      //var_dump($ingredient[0]);
+      array_push($list, $ingredient[0]);
+    }
+    $ingredient_list[$key] = $list;
+    $selectID->closeCursor();
+  }
+
+  //var_dump($ingredient_list["Additive"]);
 
   return $ingredient_list;
 }
@@ -108,6 +126,7 @@ function addRecipe($rname, $rdescription, $ringredients) {
   $insert->bindValue(':price', 0.0);
   $insert->execute();
   $insert->closeCursor();
+  $recipeID = $db->lastInsertId(); // primary key of inserted recipe
 
   // add ingredient recipe links to ingredient recipe table
   // need to get list of all ingredient ID in list
@@ -122,7 +141,7 @@ function addRecipe($rname, $rdescription, $ringredients) {
     $selectID->closeCursor();
   }
 
-  $recipeID = $db->lastInsertId();
+
   $insertIngredientRecipe = "INSERT INTO recipeingredient (ingredientID, recipeID, quantity) VALUES (:ingredientID, :recipeID, :quantity)";
   $insert = $db->prepare($insertIngredientRecipe);
   foreach ($ringredients as $ingredient => $quantity) {
@@ -149,7 +168,6 @@ function addRecipe($rname, $rdescription, $ringredients) {
   $statement = $db->prepare($changePrice);
   $statement->execute();
   $statement->closeCursor();
-
   return;
 }
 
