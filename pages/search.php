@@ -11,6 +11,7 @@ require("../connect-db.php");      // include("connect-db.php");
 require("../db-controller.php");
 
 $name = $_SESSION['username'];
+$con=mysqli_connect("localhost","root","","recipen");
 ?>
 
 <html lang="en">
@@ -42,7 +43,7 @@ $name = $_SESSION['username'];
     <div class="container py-5 mt-5">
       <div class="row py-2 d-flex align-items-center justify-content-center">
 
-        <form action="recipe.php" method="post">
+        <form action="search.php" method="post">
             <div class="form-outline mb-4">
                 <label for="name" class="form-label">Search for recipes</label>
                 <input type="text" class="form-control mb-4" id="name" name="name" required/>
@@ -54,6 +55,26 @@ $name = $_SESSION['username'];
             </div>
         </form>
       </div>
+    </div>
+
+    <div class="container">
+      <?php
+        if(isset($_POST['search'])){
+          $key = mysqli_real_escape_string($con, $_POST['name']);
+          echo "<h3>Search Results for '".$key."'</h3>";
+          $sql="SELECT * FROM recipe WHERE recipeName LIKE '%$key%' OR description LIKE '%$key%'";
+          $res = mysqli_query($con, $sql);
+          if(mysqli_num_rows($res) > 0) {
+            while($row = mysqli_fetch_assoc($res)) {
+              echo "<a href='recipe.php'>".$row['recipeName']."</a>";
+              echo "<br/>";
+            }
+          }
+          else {
+            echo "No data found";
+          }
+        }
+      ?>
     </div>
 
     <!-- CARDS -->
