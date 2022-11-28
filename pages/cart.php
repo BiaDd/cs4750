@@ -2,8 +2,10 @@
 require("../connect-db.php");
 require("../db-controller.php");
 session_start();
-$list_of_recipes = getCart($_SESSION['username']);
-$cart_price = getCartPrice($_SESSION['username']);
+
+$recipes_in_cart = getRecipesInCart($_SESSION['uid']);
+$cart_price = getCartPrice($_SESSION['uid']);
+$ingredients_in_cart = getIngredientsInCart($_SESSION['uid']);
 
 ?>
 
@@ -31,56 +33,66 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
         <title>Cart</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
     </head>
+    
     <?php include('../templates/header.php') ?>
+    
     <body>
-        <div class="container" style="margin-top: 15px;">
-            <div class="row col-xs-8">
-                <h1>Your Cart</h1>
+      <div style="width: 100%" class="m-3">
+        <h3 class="mb-4">Your Grocery Cart</h3>
 
-            </div>
-            <div class="row justify-content-center">
+        <h4>Cart Price: $<?php echo $cart_price; ?></h4>
+        
+        <div class="row">
+          <div style="width:60%; float:left;">
+            <h4 class="mt-2">Ingredients</h4>
+            <table class="w3-table table shadow w3-bordered w3-card-4 center">
+              <thead>
+                <tr style="background-color:#000000; color:#ffffff">
+                  <th width="30%">Name</th>        
+                  <th width="30%">Type</th>
+                  <th width="20%">Quantity</th>
+                  <th width="20%">Total Price</th>
+                </tr>
+              </thead>  
+              <?php foreach ($ingredients_in_cart as $ingredient_info): ?>
+              <tr class="">
+                  <td><?php echo $ingredient_info['ingredientName']; ?></td>
+                  <td><?php echo $ingredient_info['ingredientType']; ?></td>
+                  <td><?php echo $ingredient_info['quantity']; ?></td>
+                  <td>$<?php echo $ingredient_info['price']; ?></td>
+              </tr>
+              <?php endforeach; ?>
+            </table>
+          </div>
+          
+          <div style="width: 30%; float:left;">
+            <h4 class="mt-2">Recipes</h4>
+            <table class="w3-table table shadow w3-bordered w3-card-4 center">
+              <thead>
+                <tr style="background-color:#000000; color:#ffffff">
+                  <th width="70%">Name</th>
+                  <th width="30%">Price</th>
+                </tr>
+              </thead>  
+              <?php foreach ($recipes_in_cart as $myrecipe_info): ?>
+              <tr class="">
+                  <td>
+                    <form action="home.php" method="POST" class="align-middle">
+                        <input type="submit" name="goToRecipe" value="<?php echo $myrecipe_info['recipeName']; ?>" class="btn p-0 text-capitalize"
+                        title="<?php echo $myrecipe_info['recipeID']; ?>"/>
+                        <input type="hidden" name="recipe_to_load"
+                        value="<?php echo $myrecipe_info['recipeID']; ?>"/>
+                    </form>
+                  </td>
+                  <td>$<?php echo $myrecipe_info['price']; ?></td>
+              </tr>
+              <?php endforeach; ?>
+              </table>
+          </div>
+      </div>
 
-            </div>
-            <hr></hr>
-            <div class="row mt-2 justify-content-center">
-
-                <div class="">
-                    <h3>Your Recipes</h3>
-                    <table class="w3-table center" style="width:100%">
-                        <thead>
-                            <tr style="background-color:#B0B0B0">
-                              <th width="20%">Recipe Name
-                              <th width="40%">Description
-                              <th width="15%">Amount
-                              <th width="15%">Price
-                              <th width="10%">
-                            </tr>
-                        </thead>
-                    <?php foreach ($list_of_recipes as $r): ?>
-                      <tr>
-                        <td><?php echo $r['recipeName']; ?></td>
-                        <td><?php echo $r['description']; ?></td>
-                        <td><?php echo $r['amount']; ?></td>
-                        <td><?php echo $r['price']; ?></td>
-                        <td>
-                          <form action="cart.php" method="post">
-                            <input type ="submit" name="btnAction" value="Delete" class="btn btn-primary" title="click to remove recipe"/>
-                            <input type="hidden" name="recipe_to_remove"
-                            value="<?php echo $r['recipeName'];?>"
-                            />
-                          </form>
-                        </td>
-                      </tr>
-                    <?php endforeach; ?>
-                    </table>
-              </div>
-              <hr></hr>
-              <h2>Your Total: </h2>
-
-            </div>
-
-        </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
     </body>
+
     <?php include('../templates/footer.html') ?>
 </html>

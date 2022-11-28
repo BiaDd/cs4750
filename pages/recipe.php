@@ -7,6 +7,7 @@ $userID = $_SESSION['uid'];
 $recipe_info = getRecipe($_SESSION['recipeID']);
 $ingredients = getRecipeIngredients($_SESSION['recipeID']);
 $is_user_owner = isRecipeOwner($userID, $_SESSION['recipeID']);
+$recipes_in_cart = getRecipesInCartArray($_SESSION['uid']);
 ?>
 
 
@@ -22,6 +23,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
         header("Location: home.php");
         exit;
     }
+  }
+  if(!empty($_POST['addToCart'])){
+    $recipeID = $_POST['recipe_to_use'];
+    addRecipeToCart($_SESSION['uid'], $recipeID);
+    $recipes_in_cart = getRecipesInCartArray($userID);
+  }
+  if(!empty($_POST['removeFromCart'])){
+    $recipeID = $_POST['recipe_to_use'];
+    removeRecipeFromCart($_SESSION['uid'], $recipeID);
+    $recipes_in_cart = getRecipesInCartArray($userID);
   }
 }
 
@@ -56,18 +67,46 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 
     <div class="card">
       <div class="card-body">
-          <h3><?php echo $recipe_info['recipeName']?></h3>
-          <div class="overflow-y"> Instructions:
-            <p><?php echo "- " .$recipe_info['description']?></p>
+          <h3 class="text-capitalize"><?php echo $recipe_info['recipeName']?></h3>
+          <div class="overflow-y">
+            <p><?php echo $recipe_info['description']?></p>
           </div>
+
+          <form action="recipe.php" method="post">
+            <?php if(in_array($_SESSION['recipeID'], $recipes_in_cart)): ?>
+            <input type="submit" name="removeFromCart" value="Remove from Cart" class="btn btn-sm btn-danger"
+            title="Remove recipe from cart"/>
+            <?php else : ?>
+            <input type="submit" name="addToCart" value="Add to Cart" class="btn btn-sm btn-primary"
+            title="Add recipe to cart"/>
+            <?php endif; ?>
+            <input type="hidden" name="recipe_to_use"
+            value="<?php echo $_SESSION['recipeID'] ?>"/>
+            
+            <a href="#" class="btn btn-sm btn-warning" role="button"
+                data-bs-toggle="modal" data-bs-target="#ratingModal">
+                Rate
+            </a>
+            <a href="#" class="btn btn-sm btn-success" role="button"
+                data-bs-toggle="modal" data-bs-target="#reviewModal">
+                Review
+            </a>
+            <?php if ($is_user_owner): ?>
+            <a href="#" class="btn btn-sm btn-danger" role="button"
+                data-bs-toggle="modal" data-bs-target="#deleteModal">
+                Delete
+            </a>
+            <?php endif; ?>
+          </form>
+
           <div class="d-flex">
-              <div class="p-2">
-                  <h3>List of ingredients</h3>
-                  <table class="w3-table w3-bordered w3-card-4">
+              <div class="p-2" style="width: 40%">
+                  <h4>Ingredients</h4>
+                  <table class="w3-table table shadow w3-bordered w3-card-4 center" style="width:70%">
                       <thead>
-                          <tr style="background-color:#B0B0B0">
-                            <th width="50%">Name
-                            <th width="50%">Quantity
+                          <tr style="background-color:#000000; color:#ffffff">
+                            <th width="50%">Name</th>
+                            <th width="50%">Quantity</th>
                           </tr>
                       </thead>
                   <?php foreach ($ingredients as $recipe_ingredients): ?>
@@ -79,24 +118,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
                   </table>
             </div>
           </div>
-
-          <form action="recipe.php" method="post">
-            <input type ="submit" name="add" value="Add" class="btn btn-primary" title="Add recipe to cart"/>
-            <a href="#" class="btn btn-primary" role="button"
-                data-bs-toggle="modal" data-bs-target="#ratingModal">
-                Rate
-            </a>
-            <a href="#" class="btn btn-primary" role="button"
-                data-bs-toggle="modal" data-bs-target="#reviewModal">
-                Review
-            </a>
-            <?php if ($is_user_owner): ?>
-            <a href="#" class="btn btn-danger" role="button"
-                data-bs-toggle="modal" data-bs-target="#deleteModal">
-                Delete
-            </a>
-            <?php endif; ?>
-          </form>
 
           <!-- bad way to do this, but i don't know how to make the stuff change depending
             on which button is clicked
@@ -110,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
                           </p>
                           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       </div>
-                      <form action="recipe.php" method="post">
+                      <form action="recipe.php" method="POST">
                         <div class="modal-body">
                           <input type="number" id="rating" name='rating' min="1" max="5" value="1" style="width:50px;margin-left: 15px;">
                         </div>

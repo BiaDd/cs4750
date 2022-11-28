@@ -63,6 +63,7 @@ function signup($username, $firstname, $lastname, $password, $password_check) {
       $_SESSION["username"] = $uname;
       $_SESSION["uid"] = $db->lastInsertId();
       $_SESSION["authenticated"] = True;
+      $_SESSION['logged_in'] = True;
 
       return;
     }
@@ -76,9 +77,25 @@ function getUser($userID) {
 
 }
 
+function getIngredientsInCart($userID) {
+  global $db;
 
-function getCart($userID) {
-  return [];
+  $query =
+  "SELECT table1.ingredientID, table1.ingredientName, table1.ingredientType, SUM(table1.quantity) AS quantity, SUM(table1.totalPrice) AS price
+  FROM
+  (SELECT recipeingredient.ingredientID, recipeingredient.recipeID, ingredient.ingredientName, ingredient.ingredientType, recipeingredient.quantity, recipeingredient.quantity * ingredient.price AS totalPrice
+  FROM ingredient, recipeingredient,
+   (SELECT recipeID FROM recipecart WHERE cartID=:userID
+   ) AS userrecipes
+  WHERE recipeingredient.recipeID = userrecipes.recipeID AND ingredient.ingredientID = recipeingredient.ingredientID)
+  AS table1 GROUP BY ingredientID";
+
+  $statement = $db->prepare($query);
+  $statement->bindValue(':userID', $userID);
+  $statement->execute();
+  $result = $statement->fetchAll();
+  $statement->closeCursor();
+  return $result;
 }
 
 
@@ -202,23 +219,28 @@ function getRecipe($recipeID) {
 }
 
 
-function getCartPrice($username) {
+function getCartPrice($userID) {
   global $db;
 
-  // need to redo this
   $query =
-  "SELECT recipecart.cartID, SUM(table2.price)
-  AS cartPrice FROM recipecart, (SELECT table1.recipeID, SUM(table1.totalPrice) AS price FROM
-  (SELECT recipeingredient.ingredientID, recipeingredient.recipeID, recipeingredient.quantity * ingredient.price AS totalPrice FROM recipeingredient, ingredient WHERE ingredient.ingredientID = recipeingredient.ingredientID)
-  AS table1 GROUP BY recipeID) AS table2 WHERE table2.recipeID = recipecart.recipeID GROUP BY cartID";
+  "SELECT recipecart.cartID, SUM(table2.price) AS cartPrice
+  FROM recipecart,
+    (SELECT table1.recipeID, SUM(table1.totalPrice) AS price
+    FROM
+      (SELECT recipeingredient.ingredientID, recipeingredient.recipeID, recipeingredient.quantity * ingredient.price AS totalPrice
+      FROM recipeingredient, ingredient
+      WHERE ingredient.ingredientID = recipeingredient.ingredientID)
+      AS table1 GROUP BY recipeID)
+    AS table2
+  WHERE table2.recipeID = recipecart.recipeID AND recipecart.cartID=:userID
+  GROUP BY cartID";
 
   $statement = $db->prepare($query);
-  $statement->bindValue(':username', $username);
+  $statement->bindValue(':userID', $userID);
   $statement->execute();
   $result = $statement->fetch();
   $statement->closeCursor();
-  #var_dump($result);
-  return $result['totalPrice'];
+  return $result['cartPrice'];
 }
 
 
@@ -247,5 +269,82 @@ function deleteRecipe($recipeID) {
   // need to delete all reviews related to recipe as well
 }
 
+function getAllRecipesForUser($userID) {
+  global $db;
+  $query = "SELECT * FROM recipe WHERE userID=:userID";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':userID', $userID);
+  $statement->execute();
+  $result = $statement->fetchAll(); //fetch() only gives you 1 row
+  $statement->closeCursor();
+  return $result;
+}
+
+function addRecipeToCart($userID, $recipeID) {
+  global $db;
+  
+  //get cartID for this user
+  $cartID = $userID;
+
+  //add recipe to that cart
+  $query = "INSERT INTO recipecart (cartID, recipeID) VALUES (:cartID, :recipeID)";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':cartID', $cartID);
+  $statement->bindValue(':recipeID', $recipeID);
+  $statement->execute();
+  $result = $statement->fetchAll(); //fetch() only gives you 1 row
+  $statement->closeCursor();
+  return $result;
+}
+
+function getRecipesInCart($userID){
+  global $db;
+  $cartID = $userID;
+
+  $query = "SELECT * FROM recipe INNER JOIN recipecart
+  WHERE recipecart.recipeID = recipe.recipeID
+  AND recipecart.cartID=:cartID";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':cartID', $cartID);
+  $statement->execute();
+  $result = $statement->fetchAll(); //fetch() only gives you 1 row
+  $statement->closeCursor();
+  return $result;
+}
+
+function getRecipesInCartArray($userID){
+  global $db;
+  $cartID = $userID;
+
+  $query = "SELECT recipeID FROM recipecart WHERE cartID=:cartID";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':cartID', $cartID);
+  $statement->execute();
+  $result = $statement->fetchAll(); //fetch() only gives you 1 row
+  $statement->closeCursor();
+
+  $result_array = [];
+  foreach($result as $row){
+    array_push($result_array, $row['recipeID']);
+  }
+  return $result_array;
+}
+
+function removeRecipeFromCart($userID, $recipeID) {
+  global $db;
+  
+  //get cartID for this user
+  $cartID = $userID;
+
+  //remove recipe from that cart
+  $query = "DELETE FROM recipecart WHERE cartID=:cartID AND recipeID=:recipeID";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':cartID', $cartID);
+  $statement->bindValue(':recipeID', $recipeID);
+  $statement->execute();
+  $statement->closeCursor();
+}
+
 
  ?>
+

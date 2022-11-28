@@ -39,7 +39,7 @@ if (isset($_SESSION['authenticated'])) {
                     </li>
                     <?php if (!$authenticated) { ?>
                     <li class="nav-item">
-                        <a class="nav-link" href="pages/login.php">
+                        <a class="nav-link" href="login.php">
                             Login
                         </a>
                     </li>

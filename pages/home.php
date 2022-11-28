@@ -10,6 +10,29 @@ require("../connect-db.php");      // include("connect-db.php");
 require("../db-controller.php");
 
 $name = $_SESSION['username'];
+$list_of_recipes = getAllRecipesForUser($_SESSION['uid']);
+$recipes_in_cart = getRecipesInCartArray($_SESSION['uid']);
+?>
+
+<?php
+if($_SERVER['REQUEST_METHOD'] == 'POST'){
+    if(!empty($_POST['goToRecipe'])){
+				$_SESSION['recipeID'] = $_POST['recipe_to_load'];
+				header("Location: recipe.php");
+    }
+		if(!empty($_POST['addToCart'])){
+			$recipeID = $_POST['recipe_to_use'];
+			addRecipeToCart($_SESSION['uid'], $recipeID);
+			$list_of_recipes = getAllRecipesForUser($_SESSION['uid']);
+			$recipes_in_cart = getRecipesInCartArray($_SESSION['uid']);
+		}
+		if(!empty($_POST['removeFromCart'])){
+			$recipeID = $_POST['recipe_to_use'];
+			removeRecipeFromCart($_SESSION['uid'], $recipeID);
+			$list_of_recipes = getAllRecipesForUser($_SESSION['uid']);
+			$recipes_in_cart = getRecipesInCartArray($_SESSION['uid']);
+		}
+}
 ?>
 
 <html lang="en">
@@ -38,19 +61,51 @@ $name = $_SESSION['username'];
   <?php include('../templates/header.php') ?>
   <body>
     <?php
-      echo "<h3 class='text-center'>Hello chef $name!</h3>";
+      echo "<h3 class='text-center mt-2'>Hello Chef $name!</h3>";
     ?>
 
-    <div>
-      <h4>Your Recipes <a href="addRecipe.php">Add Recipe</a> </h4>
+    <div class="m-3">
+      <h4>Your Recipes <a href="addRecipe.php" class="btn btn-success">Add Recipe</a> </h4>
       <div class="list-group">
-        <a href="#" class="list-group-item list-group-item-action">
-          Cras justo odio
-        </a>
-        <a href="#" class="list-group-item list-group-item-action">Dapibus ac facilisis in</a>
-        <a href="#" class="list-group-item list-group-item-action">Morbi leo risus</a>
-        <a href="#" class="list-group-item list-group-item-action">Porta ac consectetur ac</a>
-        <a href="#" class="list-group-item list-group-item-action">Vestibulum at eros</a>
+			<table class="w3-table table shadow w3-bordered w3-card-4 center" style="width:70%">
+      <thead>
+				<tr style="background-color:#000000; color:#ffffff">
+					<th width="25%">Name</th>        
+					<th width="40%">Description</th>    
+					<th width="10%">Rating</th>
+					<th width="10%">Price</th>
+					<th width="15%">Cart</th>
+				</tr>
+			</thead>  
+			<?php foreach ($list_of_recipes as $myrecipe_info): ?>
+			<tr class="">
+          <td>
+						<form action="home.php" method="POST" class="align-middle">
+								<input type="submit" name="goToRecipe" value="<?php echo $myrecipe_info['recipeName']; ?>" class="btn p-0 text-capitalize"
+								title="<?php echo $myrecipe_info['recipeID']; ?>"/>
+								<input type="hidden" name="recipe_to_load"
+								value="<?php echo $myrecipe_info['recipeID']; ?>"/>
+						</form>
+					</td>
+          <td><?php echo $myrecipe_info['description']; ?></td>
+					<td><?php echo $myrecipe_info['rating']; ?></td>
+					<td>$<?php echo $myrecipe_info['price']; ?></td>
+					<td>
+						<form action="home.php" method="POST">
+							<?php if(in_array($myrecipe_info['recipeID'], $recipes_in_cart)): ?>
+								<input type="submit" name="removeFromCart" value="Remove from Cart" class="btn btn-sm btn-danger"
+								title="Remove recipe from cart"/>
+							<?php else : ?>
+								<input type="submit" name="addToCart" value="Add to Cart" class="btn btn-sm btn-primary"
+								title="Add recipe to cart"/>
+							<?php endif; ?>
+								<input type="hidden" name="recipe_to_use"
+								value="<?php echo $myrecipe_info['recipeID']; ?>"/>
+						</form>
+					</td>
+			</tr>
+      <?php endforeach; ?>
+			</table>
       </div>
 
     </div>
