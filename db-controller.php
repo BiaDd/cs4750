@@ -12,7 +12,7 @@ function login($username, $password) {
     #var_dump($user);
     if ($user === false) { // If there is an error:
         $error_msg = "Error occurred while logging in.";
-    } else if (!empty($user)) { // If there is no error:
+    } else if (!empty($user)) { // If there is a user:
         if (password_verify($password, $user['password'])) { // only works with creating user through password hash
             $_SESSION["username"] = $user['username'];
             $_SESSION["uid"] = $user['userID'];
@@ -72,16 +72,29 @@ function signup($username, $firstname, $lastname, $password, $password_check) {
   }
 }
 
-function getUser($username) {
+function getUser($userID) {
 
 }
 
 
-function getCart($username) {
+function getCart($userID) {
   return [];
 }
 
-function getIngredients() {
+
+function getRecipeIngredients($recipe_id) {
+  global $db;
+  $query = "SELECT ingredientName, quantity FROM ingredient NATURAL JOIN recipeingredient WHERE recipeID=:recipeID";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':recipeID', $recipe_id);
+  $statement->execute();
+  $result = $statement->fetchAll();
+
+  return $result;
+
+}
+
+function getAllIngredients() {
   global $db;
   $ingredient_list = array("Additive"=>array(),"Baking"=>array(),"Cereal"=>array(),"Dairy"=>array(),"Fish"=>array(),"Fruits"=>array(),"Meats"=>array(),"Nuts"=>array(),"Seafood"=>array(), "Seasonings"=>array(),"Sauces"=>array(),"Vegetables"=>array());
 
@@ -126,6 +139,7 @@ function addRecipe($rname, $rdescription, $ringredients) {
   $insert->execute();
   $insert->closeCursor();
   $recipeID = $db->lastInsertId(); // primary key of inserted recipe
+  $_SESSION["recipeID"] = $recipeID;
 
   // add ingredient recipe links to ingredient recipe table
   // need to get list of all ingredient ID in list
@@ -175,6 +189,17 @@ function addRecipe($rname, $rdescription, $ringredients) {
   return;
 }
 
+function getRecipe($recipeID) {
+  global $db;
+  $query = "SELECT * FROM recipe WHERE recipeID=:recipeID";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':recipeID', $recipeID);
+  $statement->execute();
+  $result = $statement->fetch();
+  $statement->closeCursor();
+
+  return $result;
+}
 
 
 function getCartPrice($username) {
@@ -192,8 +217,35 @@ function getCartPrice($username) {
   $statement->execute();
   $result = $statement->fetch();
   $statement->closeCursor();
-  var_dump($result);
+  #var_dump($result);
   return $result['totalPrice'];
 }
+
+
+function isRecipeOwner($userID, $recipeID) {
+  global $db;
+  $query = "SELECT * FROM recipe WHERE recipeID=$recipeID AND userID=$userID";
+  $statement = $db->prepare($query);
+  $statement->execute();
+  $result = $statement->fetch();
+  $statement->closeCursor();
+  //var_dump($result);
+  return $result;
+
+}
+
+function deleteRecipe($recipeID) {
+  global $db;
+
+  // maybe set up a trigger for this
+  $delete_from_recipe = "DELETE FROM recipe WHERE recipeID=$recipeID";
+  $statement = $db->prepare($delete_from_recipe);
+  $statement->execute();
+  $statement->closeCursor();
+  return;
+  // need trigger to delete from recipe_ingredients relationships
+  // need to delete all reviews related to recipe as well
+}
+
 
  ?>

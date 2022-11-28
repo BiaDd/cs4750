@@ -5,7 +5,7 @@ require("../db-controller.php");
 
 $username = $_SESSION['username'];
 $ingredients_used = array();
-$ingredients = getIngredients();
+$ingredients = getAllIngredients();
 ?>
 
 <!--
@@ -20,26 +20,27 @@ https://www.w3schools.com/howto/howto_js_form_steps.asp
 if ($_SERVER['REQUEST_METHOD'] == 'POST')
 {
   if (!empty($_POST['btnAction'] && $_POST['btnAction'] == 'Add') ) {
-    echo $_POST['rname'];
-    echo "\n";
-    echo $_POST['rdescription'];
-    echo "\n";
+    #echo $_POST['rname'];
+    #echo "\n";
+    #echo $_POST['rdescription'];
+    #echo "\n";
     if (!empty($_POST['recipe_ingredients'])) {
       foreach($_POST['recipe_ingredients'] as $key=>$value){
           if ($value == '0' || !is_numeric($value)) {
             unset($_POST['recipe_ingredients'][$key]);
           }
       }
-
-      foreach($_POST['recipe_ingredients'] as $key=>$value){
-          echo $key.": Quantity ".$value.'<br/>';
-      }
+      // foreach($_POST['recipe_ingredients'] as $key=>$value){
+      //     echo $key.": Quantity ".$value.'<br/>';
+      // }
     }
     addRecipe($_POST['rname'], $_POST['rdescription'], $_POST['recipe_ingredients']);
     // set the recipe in the db and redirect to recipe page
     // tbh the checkbox doesn't do anything
 
     // redirect to page of recipe
+    header("Location: recipe.php");
+    exit;
     // stuff
   }
 }
@@ -89,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
           <div class="tab">Name:
             <p><input placeholder="Recipe name..." name="rname" id="rname"></p>
           </div>
-          <div class="tab">Description:
+          <div class="tab">Recipe Instructions:
             <p><input name="rdescription" id="rdescription"></p>
           </div>
           <div class="tab">Ingredients:
