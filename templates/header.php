@@ -27,7 +27,7 @@ if (isset($_SESSION['authenticated'])) {
                         <a class="nav-link" href="profile.php">Profile</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="recipe.php">Recipes</a>
+                        <a class="nav-link" href="search.php">Search</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="cart.php">Cart

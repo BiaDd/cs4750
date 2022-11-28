@@ -1,16 +1,30 @@
-<!--
-
-Shows recipes, reviews, and ingredients
-If the user is the owner of the recipe, they can edit the recipe
-
--->
-
 <?php
 session_start();
-require("../connect-db.php");      // include("connect-db.php");
+require("../connect-db.php");
 require("../db-controller.php");
 
-$name = $_SESSION['username'];
+$userID = $_SESSION['uid'];
+$recipe_info = getRecipe($_SESSION['recipeID']);
+$ingredients = getRecipeIngredients($_SESSION['recipeID']);
+$is_user_owner = isRecipeOwner($userID, $_SESSION['recipeID']);
+?>
+
+
+<?php
+if ($_SERVER['REQUEST_METHOD'] == 'POST')
+{
+
+  if (!empty($_POST['delete']))
+  {
+    if($is_user_owner == true)
+    {
+        deleteRecipe($_SESSION['recipeID']);
+        header("Location: home.php");
+        exit;
+    }
+  }
+}
+
 ?>
 
 <html lang="en">
@@ -34,90 +48,131 @@ $name = $_SESSION['username'];
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css"
     />
 
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <title>Recipen - Profile</title>
+
+    <title>Recipen - Recipe </title>
   </head>
   <?php include('../templates/header.php') ?>
   <body>
-    <div class="container py-5 mt-5">
-      <div class="row py-2 d-flex align-items-center justify-content-center">
 
-        <form action="recipe.php" method="post">
-            <div class="form-outline mb-4">
-                <label for="name" class="form-label">Search for recipes</label>
-                <input type="text" class="form-control mb-4" id="name" name="name" required/>
-                <button id="search" name="search" type="submit" value="Search" class="btn btn-primary">Search
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                  </svg>
-                </button>
+    <div class="card">
+      <div class="card-body">
+          <h3><?php echo $recipe_info['recipeName']?></h3>
+          <div class="overflow-y"> Instructions:
+            <p><?php echo "- " .$recipe_info['description']?></p>
+          </div>
+          <div class="d-flex">
+              <div class="p-2">
+                  <h3>List of ingredients</h3>
+                  <table class="w3-table w3-bordered w3-card-4">
+                      <thead>
+                          <tr style="background-color:#B0B0B0">
+                            <th width="50%">Name
+                            <th width="50%">Quantity
+                          </tr>
+                      </thead>
+                  <?php foreach ($ingredients as $recipe_ingredients): ?>
+                    <tr>
+                      <td><?php echo $recipe_ingredients['ingredientName']; ?></td>
+                      <td><?php echo $recipe_ingredients['quantity']; ?></td>
+                    </tr>
+                  <?php endforeach; ?>
+                  </table>
             </div>
-        </form>
+          </div>
+
+          <form action="recipe.php" method="post">
+            <input type ="submit" name="add" value="Add" class="btn btn-primary" title="Add recipe to cart"/>
+            <a href="#" class="btn btn-primary" role="button"
+                data-bs-toggle="modal" data-bs-target="#ratingModal">
+                Rate
+            </a>
+            <a href="#" class="btn btn-primary" role="button"
+                data-bs-toggle="modal" data-bs-target="#reviewModal">
+                Review
+            </a>
+            <?php if ($is_user_owner): ?>
+            <a href="#" class="btn btn-danger" role="button"
+                data-bs-toggle="modal" data-bs-target="#deleteModal">
+                Delete
+            </a>
+            <?php endif; ?>
+          </form>
+
+          <!-- bad way to do this, but i don't know how to make the stuff change depending
+            on which button is clicked
+          -->
+          <div class="modal fade" id="ratingModal" tabindex="-1" aria-labelledby="ratingModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <p class="modal-title fw-bold" id="ratingModalLabel">
+                              Rate <?php echo $recipe_info['recipeName']?> recipe
+                          </p>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <form action="recipe.php" method="post">
+                        <div class="modal-body">
+                          <input type="number" id="rating" name='rating' min="1" max="5" value="1" style="width:50px;margin-left: 15px;">
+                        </div>
+                        <div class="modal-footer">
+                          <input type ="submit" name="rate" value="Rate" class="btn btn-primary" title="Rate recipe"/>
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                              Close
+                          </button>
+                        </div>
+                      </form>
+                  </div>
+              </div>
+          </div>
+
+
+          <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <p class="modal-title fw-bold" id="reviewModalLabel">
+                              Write a review
+                          </p>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <form action="recipe.php" method="post">
+                        <div class="modal-body">
+                          <input type="text" id="review" name='review' style="width:100%">
+                        </div>
+                        <div class="modal-footer">
+                          <input type ="submit" name="review" value="Review" class="btn btn-primary" title="Review the recipe"/>
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                              Close
+                          </button>
+                        </div>
+                      </form>
+                  </div>
+              </div>
+          </div>
+
+          <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <p class="modal-title fw-bold" id="deleteModalLabel">
+                              Are you sure you want to delete this recipe?
+                          </p>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <form action="recipe.php" method="post">
+                        <div class="modal-footer">
+                          <input type ="submit" name="delete" value="Delete" class="btn btn-danger" title="Delete the recipe"/>
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                              Close
+                          </button>
+                        </div>
+                      </form>
+                  </div>
+              </div>
+          </div>
+
       </div>
     </div>
-
-    <!-- CARDS -->
-    <h3 class='text-center'>Featured Recipes</h3>
-    <div class="row row-cols-1 row-cols-md-2 g-4 mt-2" style="margin: 0px">
-        <div class="col d-flex justify-content-center">
-            <div class="card w-75 text-center centerCard">
-                <a href="?command=userpage"><img src="../images/fries.jpg" class="card-img-top"
-                        alt="Go to profile feature, rabbit picture" /></a>
-                <br />
-                <div class="card-body m-1">
-                    <p class="card-title fw-bold">Cool french fries</p>
-                    <p class="card-text" style="display:none;">
-                      Morbi suscipit pellentesque dolor ac eleifend. In interdum nisi nulla, in mattis urna posuere eu.
-                      Fusce eget nunc tempus mauris lacinia vehicula. Nulla tincidunt erat at finibus sagittis.
-                      Nam id leo eget velit iaculis pharetra quis ac nulla. Quisque volutpat lectus consectetur lectus scelerisque elementum ac vel nulla.
-                      Maecenas malesuada dui dictum nisl eleifend sodales. Cras justo orci, eleifend ac erat ac, dictum vehicula nibh.
-                      In placerat eu velit ac dictum. Maecenas in porttitor leo.
-                    </p>
-                </div>
-                <div class="card-footer">
-                    <small class="text-muted"></small>
-                </div>
-            </div>
-        </div>
-
-        <div class="col d-flex justify-content-center">
-            <div class="card w-75 text-center centerCard">
-                <a href="#"><img src="../images/pizza.jpg" class="card-img-top"
-                        alt="Go to blog feature, cat with hairnet image" /></a>
-                <br />
-
-                <div class="card-body m-1">
-                    <p class="card-title fw-bold">Pizza Party</p>
-                    <p class="card-text" style="display:none;">
-                        Aliquam erat volutpat. Phasellus non lobortis augue. Ut tincidunt scelerisque est id tincidunt. Fusce in nisl condimentum, condimentum massa vel, consequat nulla.
-                        Duis diam eros, scelerisque in tristique eu, semper non erat. Nulla pharetra ac nulla vel consectetur. Quisque pharetra ex vitae odio rhoncus sollicitudin. Vivamus scelerisque non risus non vestibulum.
-                        Cras interdum aliquam gravida. Praesent dapibus blandit ultrices. Sed feugiat rutrum luctus.
-                    </p>
-                </div>
-                <div class="card-footer">
-                    <small class="text-muted"></small>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-      // hover effect to display card text
-      $(document).ready(function() {
-
-        $('.centerCard').hover(
-          function () {
-            $(".card-text", this).show();
-          },
-          function () {
-            $(".card-text", this).hide(); // hide card after hover
-          }
-        );
-
-      });
-    </script>
-
-
 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
