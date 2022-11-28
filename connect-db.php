@@ -30,11 +30,11 @@
 ////////////////////////////////////////////
 
 /** F22, PHP (on GCP, local XAMPP, or CS server) connect to MySQL (on local XAMPP) **/
-// $username = 'root';
-// $password = '';
-// $host = 'localhost';
-// $dbname = '';
-// $dsn = "mysql:host=$host;dbname=$dbname";
+$username = 'root';
+$password = '';
+$host = 'localhost';
+$dbname = 'recipen';
+$dsn = "mysql:host=localhost:3306;dbname=recipen";
 ////////////////////////////////////////////
 
 /** F22, PHP (on GCP, local XAMPP, or CS server) connect to MySQL (on CS server) **/
