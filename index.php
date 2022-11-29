@@ -45,22 +45,22 @@ session_start();
         <div class="carousel-item active">
           <img src="images/fries.jpg" class="" alt="...">
           <div class="carousel-caption d-none d-md-block">
-            <h5>First slide label</h5>
-            <p>Some representative placeholder content for the first slide.</p>
+            <h5>Cool french fries</h5>
+            <p>An easy recipe to make for friends</p>
           </div>
         </div>
         <div class="carousel-item">
           <img src="images/pizza.jpg" class="" alt="...">
           <div class="carousel-caption d-none d-md-block">
-            <h5>Second slide label</h5>
-            <p>Some representative placeholder content for the second slide.</p>
+            <h5>Pizza Party</h5>
+            <p>No need to order takeout with this recipe</p>
           </div>
         </div>
         <div class="carousel-item">
           <img src="images/salmon.jpg" class="" alt="...">
           <div class="carousel-caption d-none d-md-block">
-            <h5>Third slide label</h5>
-            <p>Some representative placeholder content for the third slide.</p>
+            <h5>Fancy Salmon</h5>
+            <p>The best way to impress a date</p>
           </div>
         </div>
       </div>
