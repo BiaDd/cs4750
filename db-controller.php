@@ -74,9 +74,44 @@ function signup($username, $firstname, $lastname, $password, $password_check) {
 }
 
 function getUser($userID) {
+  global $db;
+  $query = "SELECT * FROM user WHERE userID=$userID";  
+
+  $statement = $db->prepare($query);
+  $statement->execute();
+  $result = $statement->fetch();
+  $statement->closeCursor();
+  return $result;
 
 }
 
+function setUser($userID, $username, $firstname, $lastname) {
+  global $db;
+  $query = "UPDATE `user` SET username=:username, firstName=:firstName, lastName=:lastName WHERE userID=:userID"; 
+
+  $statement = $db->prepare($query);
+  $statement->bindValue(':username', $username);
+  $statement->bindValue(':firstName', $firstname);
+  $statement->bindValue(':lastName', $lastname);
+  $statement->bindValue(':userID', $userID);
+  $statement->execute();
+  $statement->closeCursor();
+  return;
+ 
+}
+
+
+function getEmails($userID) {
+  global $db;
+  $query = "SELECT * FROM email WHERE userID=$userID";  
+
+  $statement = $db->prepare($query);
+  $statement->execute();
+  $result = $statement->fetchAll();
+  $statement->closeCursor();
+  return $result;
+
+}
 function getIngredientsInCart($userID) {
   global $db;
 
@@ -97,6 +132,8 @@ function getIngredientsInCart($userID) {
   $statement->closeCursor();
   return $result;
 }
+
+
 
 
 function getRecipeIngredients($recipe_id) {
@@ -136,6 +173,20 @@ function getAllIngredients() {
   //var_dump($ingredient_list["Additive"]);
 
   return $ingredient_list;
+}
+
+function addEmail($emailAddress, $userID){
+  global $db;
+  $insertEmail = "INSERT INTO email (emailAddress, userID) VALUES (:emailAddress, :userID)";
+  $insert = $db->prepare($insertEmail);
+  $insert->bindValue(':emailAddress', $emailAddress);
+  $insert->bindValue(':userID', $userID);
+  $insert->execute();
+  
+  $insert->closeCursor();
+  $emailID = $db->lastInsertId();
+  $_SESSION["emailID"] = $emailID;
+
 }
 
 
