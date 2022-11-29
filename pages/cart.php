@@ -3,6 +3,11 @@ require("../connect-db.php");
 require("../db-controller.php");
 session_start();
 
+if (!isset($_SESSION['authenticated'])) {
+	header("Location: login.php");
+	exit;
+}
+
 $recipes_in_cart = getRecipesInCart($_SESSION['uid']);
 $cart_price = getCartPrice($_SESSION['uid']);
 $ingredients_in_cart = getIngredientsInCart($_SESSION['uid']);

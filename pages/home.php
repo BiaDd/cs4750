@@ -9,6 +9,11 @@ session_start();
 require("../connect-db.php");      // include("connect-db.php");
 require("../db-controller.php");
 
+if (!isset($_SESSION['authenticated'])) {
+	header("Location: login.php");
+	exit;
+}
+
 $name = $_SESSION['username'];
 $list_of_recipes = getAllRecipesForUser($_SESSION['uid']);
 $recipes_in_cart = getRecipesInCartArray($_SESSION['uid']);

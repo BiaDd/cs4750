@@ -11,6 +11,11 @@ session_start();
 require("../connect-db.php");      // include("connect-db.php");
 require("../db-controller.php");
 
+if (!isset($_SESSION['authenticated'])) {
+	header("Location: login.php");
+	exit;
+}
+
 $name = $_SESSION['username'];
 $con=mysqli_connect("localhost","root","","recipen");
 ?>

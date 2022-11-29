@@ -286,7 +286,7 @@ function getCartPrice($userID) {
   WHERE table2.recipeID = recipecart.recipeID AND recipecart.cartID=:userID
   GROUP BY cartID";
 
-  $statement = $db->prepare($query);
+  $statemsnipent = $db->prepare($query);
   $statement->bindValue(':userID', $userID);
   $statement->execute();
   $result = $statement->fetch();

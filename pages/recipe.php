@@ -3,6 +3,11 @@ session_start();
 require("../connect-db.php");
 require("../db-controller.php");
 
+if (!isset($_SESSION['authenticated'])) {
+	header("Location: login.php");
+	exit;
+}
+
 $userID = $_SESSION['uid'];
 $recipe_info = getRecipe($_SESSION['recipeID']);
 $ingredients = getRecipeIngredients($_SESSION['recipeID']);
