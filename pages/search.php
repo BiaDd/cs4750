@@ -6,6 +6,7 @@ If the user is the owner of the recipe, they can edit the recipe
 -->
 
 <?php
+$res = [];
 session_start();
 require("../connect-db.php");      // include("connect-db.php");
 require("../db-controller.php");
@@ -14,6 +15,19 @@ $name = $_SESSION['username'];
 $con=mysqli_connect("localhost","root","","recipen");
 ?>
 
+<?php
+if($_SERVER['REQUEST_METHOD'] == 'POST'){
+    
+    if(!empty($_POST['goToRecipe'])){
+        echo "Hi";
+        echo $_POST['recipe_to_load'];
+				$_SESSION['recipeID'] = $_POST['recipe_to_load'];
+				header("Location: recipe.php");
+    }
+}
+?>
+
+ 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -56,28 +70,30 @@ $con=mysqli_connect("localhost","root","","recipen");
         </form>
       </div>
     </div>
-
-    <div class="container">
+    
+    <div class="m-3">
       <?php
         if(isset($_POST['search'])){
           $key = mysqli_real_escape_string($con, $_POST['name']);
           echo "<h3>Search Results for '".$key."'</h3>";
-          $sql="SELECT * FROM recipe WHERE recipeName LIKE '%$key%' OR description LIKE '%$key%'";
+          $sql="SELECT recipeID, recipeName FROM recipe WHERE recipeName LIKE '%$key%' OR description LIKE '%$key%'";
           $res = mysqli_query($con, $sql);
-          if(mysqli_num_rows($res) > 0) {
-            while($row = mysqli_fetch_assoc($res)) {
-              echo "<a href='recipe.php'>".$row['recipeName']."</a>";
-              echo "<br/>";
-            }
-          }
-          else {
-            echo "No data found";
-          }
         }
       ?>
+      <?php foreach ($res as $myrecipe_info): ?>
+			  <tr class="">
+            <td>
+						  <form action="search.php" method="POST">
+								  <input type="submit" name="goToRecipe" value="<?php echo $myrecipe_info['recipeName']; ?>" class="btn p-0 text-capitalize"
+								  title="<?php echo $myrecipe_info['recipeID']; ?>"/>
+								  <input type="hidden" name="recipe_to_load"
+								  value="<?php echo $myrecipe_info['recipeID']; ?>"/>
+						  </form>
+					  </td>
+        </tr>
+      <?php endforeach; ?>
     </div>
 
-    <!-- CARDS -->
     <h3 class='text-center'>Featured Recipes</h3>
     <div class="row row-cols-1 row-cols-md-2 g-4 mt-2" style="margin: 0px">
         <div class="col d-flex justify-content-center">
