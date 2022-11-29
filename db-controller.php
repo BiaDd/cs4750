@@ -112,6 +112,22 @@ function getEmails($userID) {
   return $result;
 
 }
+
+
+function getReviews($recipeID) {
+  global $db;
+  $query = "SELECT * FROM review WHERE recipeID=$recipeID";
+
+  $statement = $db->prepare($query);
+  $statement->execute();
+  $result = $statement->fetchAll();
+  $statement->closeCursor();
+  return $result;
+
+
+}
+
+
 function getIngredientsInCart($userID) {
   global $db;
 

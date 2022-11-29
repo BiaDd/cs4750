@@ -13,6 +13,10 @@ $recipe_info = getRecipe($_SESSION['recipeID']);
 $ingredients = getRecipeIngredients($_SESSION['recipeID']);
 $is_user_owner = isRecipeOwner($userID, $_SESSION['recipeID']);
 $recipes_in_cart = getRecipesInCartArray($_SESSION['uid']);
+$reviews = getReviews($_SESSION['recipeID']);
+
+
+
 ?>
 
 
@@ -174,7 +178,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
           </div>
 
       </div>
+
+
+      <div class="d-flex">
+              <div class="p-2" style="width: 40%">
+                  <h4>Reviews</h4>
+                  <table class="w3-table table shadow w3-bordered w3-card-4 center" style="width:70%">
+                      <thead>
+                          <tr style="background-color:#caf1de; color:light-blue">
+                            <th width="50%">Review</th>
+                            <th width="50%">Rating</th>
+                          </tr>
+                      </thead>
+                  <?php foreach ($reviews as $reviewinfo): ?>
+                    <tr>
+                      <td><?php echo $reviewinfo['text']; ?></td>
+                      <td><?php echo $reviewinfo['rating']; ?></td>
+                    </tr>
+                  <?php endforeach; ?>
+                  </table>
+            </div>
+            <h3>Average Rating: <?php echo $recipe_info['rating']; ?> </h3>
+          </div>
     </div>
+
+
+
+
+
+
+
+
+
+
 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
