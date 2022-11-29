@@ -75,7 +75,7 @@ function signup($username, $firstname, $lastname, $password, $password_check) {
 
 function getUser($userID) {
   global $db;
-  $query = "SELECT * FROM user WHERE userID=$userID";  
+  $query = "SELECT * FROM user WHERE userID=$userID";
 
   $statement = $db->prepare($query);
   $statement->execute();
@@ -87,7 +87,7 @@ function getUser($userID) {
 
 function setUser($userID, $username, $firstname, $lastname) {
   global $db;
-  $query = "UPDATE `user` SET username=:username, firstName=:firstName, lastName=:lastName WHERE userID=:userID"; 
+  $query = "UPDATE `user` SET username=:username, firstName=:firstName, lastName=:lastName WHERE userID=:userID";
 
   $statement = $db->prepare($query);
   $statement->bindValue(':username', $username);
@@ -97,13 +97,13 @@ function setUser($userID, $username, $firstname, $lastname) {
   $statement->execute();
   $statement->closeCursor();
   return;
- 
+
 }
 
 
 function getEmails($userID) {
   global $db;
-  $query = "SELECT * FROM email WHERE userID=$userID";  
+  $query = "SELECT * FROM email WHERE userID=$userID";
 
   $statement = $db->prepare($query);
   $statement->execute();
@@ -182,7 +182,7 @@ function addEmail($emailAddress, $userID){
   $insert->bindValue(':emailAddress', $emailAddress);
   $insert->bindValue(':userID', $userID);
   $insert->execute();
-  
+
   $insert->closeCursor();
   $emailID = $db->lastInsertId();
   $_SESSION["emailID"] = $emailID;
@@ -291,7 +291,12 @@ function getCartPrice($userID) {
   $statement->execute();
   $result = $statement->fetch();
   $statement->closeCursor();
-  return $result['cartPrice'];
+  if (!empty($result)) {
+      return $result['cartPrice'];
+  }
+  else {
+     return 0.00;
+  }
 }
 
 
