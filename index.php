@@ -53,7 +53,7 @@ session_start();
           <img src="images/pizza.jpg" class="" alt="...">
           <div class="carousel-caption d-none d-md-block">
             <h5>Pizza Party</h5>
-            <p>No need to order takeout with this recipe</p>
+            <p>No need to order takeout with this recipe!</p>
           </div>
         </div>
         <div class="carousel-item">
