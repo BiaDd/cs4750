@@ -70,10 +70,10 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
     ?>
 
     <div class="m-3">
-      <h4>Your Recipes <a href="addRecipe.php" class="btn btn-success">Add Recipe</a> </h4>
+      <h4>Your Recipes <a href="addRecipe.php" class="btn btn-sm btn-success">Add Recipe</a> </h4>
       <div class="list-group">
-			<table class="w3-table table shadow w3-bordered w3-card-4 center" style="width:70%">
-      <thead>
+		<table class="w3-table table shadow w3-bordered w3-card-4 center" style="width:70%">
+      		<thead>
 				<tr style="background-color:#000000; color:#ffffff">
 					<th width="25%">Name</th>        
 					<th width="40%">Description</th>    
@@ -85,18 +85,19 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 			<?php foreach ($list_of_recipes as $myrecipe_info): ?>
 			<tr class="">
           <td>
-						<form action="home.php" method="POST" class="align-middle">
+						<form action="home.php" method="POST" class="align-middle mb-0">
 								<input type="submit" name="goToRecipe" value="<?php echo $myrecipe_info['recipeName']; ?>" class="btn p-0 text-capitalize"
 								title="<?php echo $myrecipe_info['recipeID']; ?>"/>
 								<input type="hidden" name="recipe_to_load"
 								value="<?php echo $myrecipe_info['recipeID']; ?>"/>
 						</form>
 					</td>
-          <td><?php echo $myrecipe_info['description']; ?></td>
+          <td>
+			<?php echo $myrecipe_info['description']; ?></td>
 					<td><?php echo $myrecipe_info['rating']; ?></td>
 					<td>$<?php echo $myrecipe_info['price']; ?></td>
 					<td>
-						<form action="home.php" method="POST">
+						<form class="mb-0" action="home.php" method="POST">
 							<?php if(in_array($myrecipe_info['recipeID'], $recipes_in_cart)): ?>
 								<input type="submit" name="removeFromCart" value="Remove from Cart" class="btn btn-sm btn-danger"
 								title="Remove recipe from cart"/>
@@ -109,8 +110,8 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 						</form>
 					</td>
 			</tr>
-      <?php endforeach; ?>
-			</table>
+      		<?php endforeach; ?>
+		</table>
       </div>
 
     </div>

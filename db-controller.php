@@ -472,5 +472,14 @@ function leaveReview($recipeID, $userID, $rating, $comment) {
 
 }
 
+function getAllRecipes(){
+  global $db;
+  $query = "SELECT * FROM recipe";
+  $statement = $db->prepare($query);
+  $statement->execute();
+  $result = $statement->fetchAll();
+  return $result;
+}
+
 
  ?>
