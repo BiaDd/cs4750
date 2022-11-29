@@ -18,17 +18,31 @@ if (!isset($_SESSION['authenticated'])) {
 
 $name = $_SESSION['username'];
 $con=mysqli_connect("localhost","root","","recipen");
+
+$list_of_recipes = getAllRecipes();
+$recipes_in_cart = getRecipesInCartArray($_SESSION['uid']);
 ?>
 
 <?php
 if($_SERVER['REQUEST_METHOD'] == 'POST'){
-    
-    if(!empty($_POST['goToRecipe'])){
-        echo "Hi";
-        echo $_POST['recipe_to_load'];
-				$_SESSION['recipeID'] = $_POST['recipe_to_load'];
-				header("Location: recipe.php");
-    }
+    if($_SERVER['REQUEST_METHOD'] == 'POST'){
+      if(!empty($_POST['goToRecipe'])){
+          $_SESSION['recipeID'] = $_POST['recipe_to_load'];
+          header("Location: recipe.php");
+      }
+      if(!empty($_POST['addToCart'])){
+        $recipeID = $_POST['recipe_to_use'];
+        addRecipeToCart($_SESSION['uid'], $recipeID);
+        $list_of_recipes = getAllRecipesForUser($_SESSION['uid']);
+        $recipes_in_cart = getRecipesInCartArray($_SESSION['uid']);
+      }
+      if(!empty($_POST['removeFromCart'])){
+        $recipeID = $_POST['recipe_to_use'];
+        removeRecipeFromCart($_SESSION['uid'], $recipeID);
+        $list_of_recipes = getAllRecipesForUser($_SESSION['uid']);
+        $recipes_in_cart = getRecipesInCartArray($_SESSION['uid']);
+      }
+  }
 }
 ?>
 
@@ -59,33 +73,50 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
   </head>
   <?php include('../templates/header.php') ?>
   <body>
-    <div class="container py-5 mt-5">
-      <div class="row py-2 d-flex align-items-center justify-content-center">
-
-        <form action="search.php" method="post">
-            <div class="form-outline mb-4">
-                <label for="name" class="form-label">Search for recipes</label>
-                <input type="text" class="form-control mb-4" id="name" name="name" required/>
-                <button id="search" name="search" type="submit" value="Search" class="btn btn-primary">Search
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                  </svg>
-                </button>
-            </div>
-        </form>
-      </div>
+    <div class="m-3">
+      <h3>Search for Recipes</h3>
+    <div>
+      <form action="search.php" method="post">
+        <div class="py-2 row col-md-4">
+          <div class="input-group col">
+              <input type="text" class="form-control" id="name" name="name" placeholder="Search by name or description" required/>
+              <button id="search" name="search" type="submit" value="Search" class="btn btn-primary">Search
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                </svg>
+              </button>
+          </div>
+          <!-- <div class="input-group col">
+              <input type="text" class="form-control" id="name" name="name" placeholder="Search by name or description" required/>
+              <button id="search" name="search" type="submit" value="Search" class="btn btn-primary">Search
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                </svg>
+              </button>
+          </div>
+          <div class="input-group col">
+              <input type="text" class="form-control" id="name" name="name" placeholder="Search by name or description" required/>
+              <button id="search" name="search" type="submit" value="Search" class="btn btn-primary">Search
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                </svg>
+              </button>
+          </div> -->
+        </div>
+      </form>
     </div>
     
-    <div class="m-3">
+    <div class="mt-3 mb-2">
       <?php
         if(isset($_POST['search'])){
           $key = mysqli_real_escape_string($con, $_POST['name']);
-          echo "<h3>Search Results for '".$key."'</h3>";
-          $sql="SELECT recipeID, recipeName FROM recipe WHERE recipeName LIKE '%$key%' OR description LIKE '%$key%'";
+          echo "<h4>Search Results for '".$key."'</h4>";
+          $sql="SELECT * FROM recipe WHERE recipeName LIKE '%$key%' OR description LIKE '%$key%'";
           $res = mysqli_query($con, $sql);
+          $list_of_recipes = $res;
         }
       ?>
-      <?php foreach ($res as $myrecipe_info): ?>
+      <!-- <?php foreach ($res as $myrecipe_info): ?>
 			  <tr class="">
             <td>
 						  <form action="search.php" method="POST">
@@ -96,8 +127,50 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 						  </form>
 					  </td>
         </tr>
-      <?php endforeach; ?>
+      <?php endforeach; ?> -->
     </div>
+
+    <div class="list-group">
+		<table class="w3-table table shadow w3-bordered w3-card-4 center" style="width:70%">
+      		<thead>
+				<tr style="background-color:#000000; color:#ffffff">
+					<th width="25%">Name</th>        
+					<th width="40%">Description</th>    
+					<th width="10%">Rating</th>
+					<th width="10%">Price</th>
+					<th width="15%">Cart</th>
+				</tr>
+			</thead>  
+			<?php foreach ($list_of_recipes as $myrecipe_info): ?>
+			<tr class="">
+          <td>
+						<form action="search.php" method="POST" class="align-middle mb-0">
+								<input type="submit" name="goToRecipe" value="<?php echo $myrecipe_info['recipeName']; ?>" class="btn p-0 text-capitalize"
+								title="<?php echo $myrecipe_info['recipeID']; ?>"/>
+								<input type="hidden" name="recipe_to_load"
+								value="<?php echo $myrecipe_info['recipeID']; ?>"/>
+						</form>
+					</td>
+          <td><?php echo $myrecipe_info['description']; ?></td>
+					<td><?php echo $myrecipe_info['rating']; ?></td>
+					<td>$<?php echo $myrecipe_info['price']; ?></td>
+					<td>
+						<form action="search.php" method="POST" class="mb-0">
+							<?php if(in_array($myrecipe_info['recipeID'], $recipes_in_cart)): ?>
+								<input type="submit" name="removeFromCart" value="Remove from Cart" class="btn btn-sm btn-danger"
+								title="Remove recipe from cart"/>
+							<?php else : ?>
+								<input type="submit" name="addToCart" value="Add to Cart" class="btn btn-sm btn-primary"
+								title="Add recipe to cart"/>
+							<?php endif; ?>
+								<input type="hidden" name="recipe_to_use"
+								value="<?php echo $myrecipe_info['recipeID']; ?>"/>
+						</form>
+					</td>
+			</tr>
+      <?php endforeach; ?>
+			</table>
+      </div>
 
     <h3 class='text-center'>Featured Recipes</h3>
     <div class="row row-cols-1 row-cols-md-2 g-4 mt-2" style="margin: 0px">
@@ -141,6 +214,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <script>
