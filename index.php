@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <?php
 session_start();
+
+if (isset($_SESSION['authenticated'])) {
+  header("Location: pages/home.php");
+  exit;
+}
 ?>
 
 <!--
