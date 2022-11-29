@@ -264,9 +264,14 @@ function deleteRecipe($recipeID) {
   $statement = $db->prepare($delete_from_recipe);
   $statement->execute();
   $statement->closeCursor();
-  return;
-  // need trigger to delete from recipe_ingredients relationships
+
   // need to delete all reviews related to recipe as well
+  $query = "DELETE FROM review WHERE recipeID=:recipeID";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':recipeID', $recipeID);
+  $statement->execute();
+  $statement->closeCursor();
+
 }
 
 function getAllRecipesForUser($userID) {
