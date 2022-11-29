@@ -34,6 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     removeRecipeFromCart($_SESSION['uid'], $recipeID);
     $recipes_in_cart = getRecipesInCartArray($userID);
   }
+
+  if(!empty($_POST['rate'])) {
+    leaveReview($_SESSION['recipeID'], $userID, $_POST['rating'], $_POST['review']);
+  }
 }
 
 ?>
@@ -82,14 +86,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
             <?php endif; ?>
             <input type="hidden" name="recipe_to_use"
             value="<?php echo $_SESSION['recipeID'] ?>"/>
-            
+
             <a href="#" class="btn btn-sm btn-warning" role="button"
                 data-bs-toggle="modal" data-bs-target="#ratingModal">
                 Rate
-            </a>
-            <a href="#" class="btn btn-sm btn-success" role="button"
-                data-bs-toggle="modal" data-bs-target="#reviewModal">
-                Review
             </a>
             <?php if ($is_user_owner): ?>
             <a href="#" class="btn btn-sm btn-danger" role="button"
@@ -134,34 +134,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
                       <form action="recipe.php" method="POST">
                         <div class="modal-body">
                           <input type="number" id="rating" name='rating' min="1" max="5" value="1" style="width:50px;margin-left: 15px;">
-                        </div>
-                        <div class="modal-footer">
-                          <input type ="submit" name="rate" value="Rate" class="btn btn-primary" title="Rate recipe"/>
-                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                              Close
-                          </button>
-                        </div>
-                      </form>
-                  </div>
-              </div>
-          </div>
-
-
-          <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
-              <div class="modal-dialog">
-                  <div class="modal-content">
-                      <div class="modal-header">
-                          <p class="modal-title fw-bold" id="reviewModalLabel">
-                              Write a review
-                          </p>
-                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                      </div>
-                      <form action="recipe.php" method="post">
-                        <div class="modal-body">
                           <input type="text" id="review" name='review' style="width:100%">
                         </div>
                         <div class="modal-footer">
-                          <input type ="submit" name="review" value="Review" class="btn btn-primary" title="Review the recipe"/>
+                          <input type ="submit" name="rate" value="Review" class="btn btn-primary" title="Rate recipe"/>
                           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                               Close
                           </button>
