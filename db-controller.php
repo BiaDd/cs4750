@@ -315,9 +315,14 @@ function deleteRecipe($recipeID) {
   $statement = $db->prepare($delete_from_recipe);
   $statement->execute();
   $statement->closeCursor();
-  return;
-  // need trigger to delete from recipe_ingredients relationships
+
   // need to delete all reviews related to recipe as well
+  $query = "DELETE FROM review WHERE recipeID=:recipeID";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':recipeID', $recipeID);
+  $statement->execute();
+  $statement->closeCursor();
+
 }
 
 function getAllRecipesForUser($userID) {
@@ -333,7 +338,7 @@ function getAllRecipesForUser($userID) {
 
 function addRecipeToCart($userID, $recipeID) {
   global $db;
-  
+
   //get cartID for this user
   $cartID = $userID;
 
@@ -383,7 +388,7 @@ function getRecipesInCartArray($userID){
 
 function removeRecipeFromCart($userID, $recipeID) {
   global $db;
-  
+
   //get cartID for this user
   $cartID = $userID;
 
@@ -397,5 +402,54 @@ function removeRecipeFromCart($userID, $recipeID) {
 }
 
 
- ?>
+function leaveReview($recipeID, $userID, $rating, $comment) {
+  global $db;
+  // can probably change this whole thing to a trigger but im dumb
 
+  $check_for_review = "SELECT * FROM review WHERE recipeID=:recipeID AND userID=:userID";
+  $statement = $db->prepare($check_for_review);
+  $statement->bindValue(':recipeID', $recipeID);
+  $statement->bindValue(':userID', $userID);
+  $statement->execute();
+  $review = $statement->fetch();
+  $statement->closeCursor();
+
+  if (!empty($review)) {
+    $update_review = "UPDATE review SET rating=:rating, text=:comment WHERE recipeID=:recipeID AND userID=:userID";
+    $statement = $db->prepare($update_review);
+    $statement->bindValue(':recipeID', $recipeID);
+    $statement->bindValue(':userID', $userID);
+    $statement->bindValue(':rating', $rating);
+    $statement->bindValue(':comment', $comment);
+    $statement->execute();
+    $statement->closeCursor();
+
+  } else {
+    $insert_review = "INSERT INTO review (recipeID, userID, rating, text) VALUES (:recipeID, :userID, :rating, :comment)";
+    $statement = $db->prepare($insert_review);
+    $statement->bindValue(':recipeID', $recipeID);
+    $statement->bindValue(':userID', $userID);
+    $statement->bindValue(':rating', $rating);
+    $statement->bindValue(':comment', $comment);
+    $statement->execute();
+    $statement->closeCursor();
+  }
+
+  $get_average_rating = "SELECT AVG(rating) AS avg_rating FROM review WHERE recipeID=:recipeID";
+  $statement = $db->prepare($get_average_rating);
+  $statement->bindValue(':recipeID', $recipeID);
+  $statement->execute();
+  $average_rating = $statement->fetch()['avg_rating'];
+  $statement->closeCursor();
+
+  $set_rating = "UPDATE recipe SET rating=:rating WHERE recipeID=:recipeID";
+  $statement = $db->prepare($set_rating);
+  $statement->bindValue(':recipeID', $recipeID);
+  $statement->bindValue(':rating', $average_rating);
+  $statement->execute();
+  $statement->closeCursor();
+
+}
+
+
+ ?>
