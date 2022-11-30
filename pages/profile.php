@@ -11,6 +11,8 @@ if (!isset($_SESSION['authenticated'])) {
 $userID = $_SESSION['uid'];
 $user = getUser($userID);
 $email = getEmails($userID);
+$followers = getFollowers($userID);
+
 
 
 if($_SERVER['REQUEST_METHOD'] == 'POST'){

@@ -100,6 +100,20 @@ function setUser($userID, $username, $firstname, $lastname) {
 
 }
 
+function getFollowers($userID) {
+  global $db;
+  $query = "SELECT * FROM followers, user
+  WHERE followers.follower = user.userID
+  AND followee=:userID";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':userID', $userID);
+  $statement->execute();
+  $result = $statement->fetchAll();
+  $statement->closeCursor();
+  return $result;
+}
+
+
 
 function getEmails($userID) {
   global $db;

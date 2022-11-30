@@ -15,8 +15,10 @@ if (!isset($_SESSION['authenticated'])) {
 }
 
 $name = $_SESSION['username'];
+$userID = $_SESSION['uid'];
 $list_of_recipes = getAllRecipesForUser($_SESSION['uid']);
 $recipes_in_cart = getRecipesInCartArray($_SESSION['uid']);
+$followers = getFollowers($userID);
 ?>
 
 <?php
@@ -113,6 +115,27 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
       		<?php endforeach; ?>
 		</table>
       </div>
+
+
+	  <div class="m-3 p-2" style="width: 60%">
+                  <br>
+                  <h4>Your Followers</h4>
+                  <table class="w3-table table shadow w3-bordered w3-card-4 center" style="width:70%">
+                      <thead>
+                          <tr style="background-color:#caf1de; color:light-blue">
+                            <th width="70%">Followers</th>
+                          </tr>
+                      </thead>
+                  <?php foreach ($followers as $follower): ?>
+                    <tr>
+                      <td><?php echo $follower['username']; ?></td>
+                    </tr>
+                  <?php endforeach; ?>
+                  </table>
+            </div>
+          </div>
+
+
 
     </div>
 
