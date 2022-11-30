@@ -198,11 +198,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
           </div>
 
       </div>
+      <div class="m-3 p-2">
+      <h4>Recipe Total Price: $<?php echo $recipe_info['price']; ?> </h4>
+      <h4>Average Rating: <?php echo $recipe_info['rating']; ?> </h4>
+                  </div>
 
 
       <div class="d-flex">
               <div class="m-3 p-2" style="width: 60%">
-                  <h4>Average Rating: <?php echo $recipe_info['rating']; ?> </h4>
                   <br>
                   <h4>Reviews</h4>
                   <table class="w3-table table shadow w3-bordered w3-card-4 center" style="width:70%">
