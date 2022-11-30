@@ -19,6 +19,7 @@ $userID = $_SESSION['uid'];
 $list_of_recipes = getAllRecipesForUser($_SESSION['uid']);
 $recipes_in_cart = getRecipesInCartArray($_SESSION['uid']);
 $followers = getFollowers($userID);
+$followees = getFollowees($userID);
 ?>
 
 <?php
@@ -132,8 +133,30 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
                     </tr>
                   <?php endforeach; ?>
                   </table>
+
+				  <br>
+                  <h4>You are following:</h4>
+                  <table class="w3-table table shadow w3-bordered w3-card-4 center" style="width:70%">
+                      <thead>
+                          <tr style="background-color:pink; color:light-blue">
+                            <th width="70%">User</th>
+                          </tr>
+                      </thead>
+                  <?php foreach ($followees as $followee): ?>
+                    <tr>
+                      <td><?php echo $followee['username']; ?></td>
+                    </tr>
+                  <?php endforeach; ?>
+                  </table>
+
+
+
+
+
             </div>
           </div>
+
+
 
 
 
