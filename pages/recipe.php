@@ -15,8 +15,6 @@ $is_user_owner = isRecipeOwner($userID, $_SESSION['recipeID']);
 $recipes_in_cart = getRecipesInCartArray($_SESSION['uid']);
 $reviews = getReviews($_SESSION['recipeID']);
 
-
-
 ?>
 
 
@@ -46,6 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 
   if(!empty($_POST['rate'])) {
     leaveReview($_SESSION['recipeID'], $userID, $_POST['rating'], $_POST['review']);
+    $reviews = getReviews($_SESSION['recipeID']);
+    $recipe_info = getRecipe($_SESSION['recipeID']);
   }
 }
 
@@ -181,13 +181,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 
 
       <div class="d-flex">
-              <div class="p-2" style="width: 40%">
+              <div class="m-3 p-2" style="width: 60%">
+                  <h4>Average Rating: <?php echo $recipe_info['rating']; ?> </h4>
+                  <br>
                   <h4>Reviews</h4>
                   <table class="w3-table table shadow w3-bordered w3-card-4 center" style="width:70%">
                       <thead>
                           <tr style="background-color:#caf1de; color:light-blue">
-                            <th width="50%">Review</th>
-                            <th width="50%">Rating</th>
+                            <th width="70%">Review</th>
+                            <th width="30%">Rating</th>
                           </tr>
                       </thead>
                   <?php foreach ($reviews as $reviewinfo): ?>
@@ -198,7 +200,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
                   <?php endforeach; ?>
                   </table>
             </div>
-            <h3>Average Rating: <?php echo $recipe_info['rating']; ?> </h3>
           </div>
     </div>
 

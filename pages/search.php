@@ -33,13 +33,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
       if(!empty($_POST['addToCart'])){
         $recipeID = $_POST['recipe_to_use'];
         addRecipeToCart($_SESSION['uid'], $recipeID);
-        $list_of_recipes = getAllRecipesForUser($_SESSION['uid']);
+        $list_of_recipes = getAllRecipes();
         $recipes_in_cart = getRecipesInCartArray($_SESSION['uid']);
       }
       if(!empty($_POST['removeFromCart'])){
         $recipeID = $_POST['recipe_to_use'];
         removeRecipeFromCart($_SESSION['uid'], $recipeID);
-        $list_of_recipes = getAllRecipesForUser($_SESSION['uid']);
+        $list_of_recipes = getAllRecipes();
         $recipes_in_cart = getRecipesInCartArray($_SESSION['uid']);
       }
   }
@@ -77,57 +77,53 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
       <h3>Search for Recipes</h3>
     <div>
       <form action="search.php" method="post">
-        <div class="py-2 row col-md-4">
+        <div class="py-2 row">
           <div class="input-group col">
-              <input type="text" class="form-control" id="name" name="name" placeholder="Search by name or description" required/>
-              <button id="search" name="search" type="submit" value="Search" class="btn btn-primary">Search
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                </svg>
-              </button>
-          </div>
-          <!-- <div class="input-group col">
-              <input type="text" class="form-control" id="name" name="name" placeholder="Search by name or description" required/>
-              <button id="search" name="search" type="submit" value="Search" class="btn btn-primary">Search
+              <input type="text" class="form-control" id="name" name="name" placeholder="Search by name or description"/>
+              <button id="search" name="searchName" type="submit" value="Search" class="btn btn-primary">Search
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                   <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                 </svg>
               </button>
           </div>
           <div class="input-group col">
-              <input type="text" class="form-control" id="name" name="name" placeholder="Search by name or description" required/>
-              <button id="search" name="search" type="submit" value="Search" class="btn btn-primary">Search
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
-                  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
-                </svg>
-              </button>
-          </div> -->
+              <input type="text" class="form-control" id="name" name="price" placeholder="Filter by max price"/>
+              <button id="search" name="filterPrice" type="submit" value="Search" class="btn btn-primary">Filter</button>
+          </div>
+          <div class="input-group col">
+              <input type="text" class="form-control" id="name" name="rating" placeholder="Filter by min rating"/>
+              <button id="search" name="filterRating" type="submit" value="Search" class="btn btn-primary">Filter</button>
+          </div>
         </div>
       </form>
     </div>
-    
+
     <div class="mt-3 mb-2">
       <?php
-        if(isset($_POST['search'])){
-          $key = mysqli_real_escape_string($con, $_POST['name']);
-          echo "<h4>Search Results for '".$key."'</h4>";
-          $sql="SELECT * FROM recipe WHERE recipeName LIKE '%$key%' OR description LIKE '%$key%'";
-          $res = mysqli_query($con, $sql);
-          $list_of_recipes = $res;
+        if($_SERVER['REQUEST_METHOD'] == 'POST'){
+          if(isset($_POST['searchName'])){
+            $key = mysqli_real_escape_string($con, $_POST['name']);
+            echo "<h5>Search Results for '".$key."'</h5>";
+            $sql="SELECT * FROM recipe WHERE recipeName LIKE '%$key%' OR description LIKE '%$key%'";
+            $res = mysqli_query($con, $sql);
+            $list_of_recipes = $res;
+          }
+          if(isset($_POST['filterPrice'])){
+            $key = mysqli_real_escape_string($con, $_POST['price']);
+            echo "<h5>Search Results for price less than $".$key."</h5>";
+            $sql="SELECT * FROM recipe WHERE price < $key";
+            $res = mysqli_query($con, $sql);
+            $list_of_recipes = $res;
+          }
+          if(isset($_POST['filterRating'])){
+            $key = mysqli_real_escape_string($con, $_POST['rating']);
+            echo "<h5>Search Results for rating greater than ".$key."</h5>";
+            $sql="SELECT * FROM recipe WHERE rating >= $key";
+            $res = mysqli_query($con, $sql);
+            $list_of_recipes = $res;
+          }
         }
       ?>
-      <!-- <?php foreach ($res as $myrecipe_info): ?>
-			  <tr class="">
-            <td>
-						  <form action="search.php" method="POST">
-								  <input type="submit" name="goToRecipe" value="<?php echo $myrecipe_info['recipeName']; ?>" class="btn p-0 text-capitalize"
-								  title="<?php echo $myrecipe_info['recipeID']; ?>"/>
-								  <input type="hidden" name="recipe_to_load"
-								  value="<?php echo $myrecipe_info['recipeID']; ?>"/>
-						  </form>
-					  </td>
-        </tr>
-      <?php endforeach; ?> -->
     </div>
 
     <div class="list-group">

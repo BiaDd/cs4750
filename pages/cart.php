@@ -17,12 +17,12 @@ $ingredients_in_cart = getIngredientsInCart($_SESSION['uid']);
 <?php
 if ($_SERVER['REQUEST_METHOD'] == 'POST')
 {
-
-  if (!empty($_POST['btnAction']) && $_POST['btnAction'] =='Delete') {
-    #echo "delete";
-    deleteRecipe($_POST['recipeName']);
-    $list_of_recipes = getCart($_SESSION['username']);
-    $cart_price = getCartPrice($_SESSION['username']);
+  if(!empty($_POST['removeFromCart'])){
+    $recipeID = $_POST['recipe_to_use'];
+    removeRecipeFromCart($_SESSION['uid'], $recipeID);
+    $recipes_in_cart = getRecipesInCart($_SESSION['uid']);
+    $cart_price = getCartPrice($_SESSION['uid']);
+    $ingredients_in_cart = getIngredientsInCart($_SESSION['uid']);
   }
 }
 ?>
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
         <h4>Cart Price: $<?php echo $cart_price; ?></h4>
         
         <div class="row">
-          <div style="width:60%; float:left;">
+          <div style="width:50%; float:left;">
             <h4 class="mt-2">Ingredients</h4>
             <table class="w3-table table shadow w3-bordered w3-card-4 center">
               <thead>
@@ -70,13 +70,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
             </table>
           </div>
           
-          <div style="width: 30%; float:left;">
+          <div style="width: 40%; float:left;">
             <h4 class="mt-2">Recipes</h4>
             <table class="w3-table table shadow w3-bordered w3-card-4 center">
               <thead>
                 <tr style="background-color:#000000; color:#ffffff">
-                  <th width="70%">Name</th>
-                  <th width="30%">Price</th>
+                  <th width="50%">Name</th>
+                  <th width="25%">Price</th>
+                  <th width="25%">Cart</th>
                 </tr>
               </thead>  
               <?php foreach ($recipes_in_cart as $myrecipe_info): ?>
@@ -90,6 +91,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
                     </form>
                   </td>
                   <td>$<?php echo $myrecipe_info['price']; ?></td>
+                  <td>
+                  <form class="mb-0" action="cart.php" method="POST">
+                      <input type="submit" name="removeFromCart" value="Remove from Cart" class="btn btn-sm btn-danger"
+                      title="Remove recipe from cart"/>
+                      <input type="hidden" name="recipe_to_use"
+                      value="<?php echo $myrecipe_info['recipeID']; ?>"/>
+                  </form>
+                  </td>
               </tr>
               <?php endforeach; ?>
               </table>
