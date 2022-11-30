@@ -110,7 +110,6 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
           }
           if(isset($_POST['filterPrice'])){
             $key = mysqli_real_escape_string($con, $_POST['price']);
-            var_dump($key);
             echo "<h5>Search Results for price less than $".$key."</h5>";
             $sql="SELECT * FROM recipe WHERE price < $key";
             $res = mysqli_query($con, $sql);
