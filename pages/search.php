@@ -46,7 +46,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 }
 ?>
 
- 
+
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -130,13 +130,13 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
 		<table class="w3-table table shadow w3-bordered w3-card-4 center" style="width:70%">
       		<thead>
 				<tr style="background-color:#000000; color:#ffffff">
-					<th width="25%">Name</th>        
-					<th width="40%">Description</th>    
+					<th width="25%">Name</th>
+					<th width="40%">Description</th>
 					<th width="10%">Rating</th>
 					<th width="10%">Price</th>
 					<th width="15%">Cart</th>
 				</tr>
-			</thead>  
+			</thead>
 			<?php foreach ($list_of_recipes as $myrecipe_info): ?>
 			<tr class="">
           <td>
@@ -167,69 +167,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
       <?php endforeach; ?>
 			</table>
       </div>
-
-    <h3 class='text-center'>Featured Recipes</h3>
-    <div class="row row-cols-1 row-cols-md-2 g-4 mt-2" style="margin: 0px">
-        <div class="col d-flex justify-content-center">
-            <div class="card w-75 text-center centerCard">
-                <a href="?command=userpage"><img src="../images/fries.jpg" class="card-img-top"
-                        alt="Go to profile feature, rabbit picture" /></a>
-                <br />
-                <div class="card-body m-1">
-                    <p class="card-title fw-bold">Cool french fries</p>
-                    <p class="card-text" style="display:none;">
-                      Morbi suscipit pellentesque dolor ac eleifend. In interdum nisi nulla, in mattis urna posuere eu.
-                      Fusce eget nunc tempus mauris lacinia vehicula. Nulla tincidunt erat at finibus sagittis.
-                      Nam id leo eget velit iaculis pharetra quis ac nulla. Quisque volutpat lectus consectetur lectus scelerisque elementum ac vel nulla.
-                      Maecenas malesuada dui dictum nisl eleifend sodales. Cras justo orci, eleifend ac erat ac, dictum vehicula nibh.
-                      In placerat eu velit ac dictum. Maecenas in porttitor leo.
-                    </p>
-                </div>
-                <div class="card-footer">
-                    <small class="text-muted"></small>
-                </div>
-            </div>
-        </div>
-
-        <div class="col d-flex justify-content-center">
-            <div class="card w-75 text-center centerCard">
-                <a href="#"><img src="../images/pizza.jpg" class="card-img-top"
-                        alt="Go to blog feature, cat with hairnet image" /></a>
-                <br />
-
-                <div class="card-body m-1">
-                    <p class="card-title fw-bold">Pizza Party</p>
-                    <p class="card-text" style="display:none;">
-                        Aliquam erat volutpat. Phasellus non lobortis augue. Ut tincidunt scelerisque est id tincidunt. Fusce in nisl condimentum, condimentum massa vel, consequat nulla.
-                        Duis diam eros, scelerisque in tristique eu, semper non erat. Nulla pharetra ac nulla vel consectetur. Quisque pharetra ex vitae odio rhoncus sollicitudin. Vivamus scelerisque non risus non vestibulum.
-                        Cras interdum aliquam gravida. Praesent dapibus blandit ultrices. Sed feugiat rutrum luctus.
-                    </p>
-                </div>
-                <div class="card-footer">
-                    <small class="text-muted"></small>
-                </div>
-            </div>
-        </div>
     </div>
-    </div>
-
-    <script>
-      // hover effect to display card text
-      $(document).ready(function() {
-
-        $('.centerCard').hover(
-          function () {
-            $(".card-text", this).show();
-          },
-          function () {
-            $(".card-text", this).hide(); // hide card after hover
-          }
-        );
-
-      });
-    </script>
-
-
 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js"
