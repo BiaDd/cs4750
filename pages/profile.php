@@ -24,6 +24,7 @@ if($_SERVER['REQUEST_METHOD'] == 'POST'){
   else if(!empty($_POST['email_update'])){
     $emailAddress = $_POST['email'];
     addEmail($emailAddress, $userID);
+    $email = getEmails($userID);
   }
 }
 

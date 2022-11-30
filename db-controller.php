@@ -331,19 +331,33 @@ function isRecipeOwner($userID, $recipeID) {
 function deleteRecipe($recipeID) {
   global $db;
 
-  // maybe set up a trigger for this
-  $delete_from_recipe = "DELETE FROM recipe WHERE recipeID=$recipeID";
-  $statement = $db->prepare($delete_from_recipe);
-  $statement->execute();
-  $statement->closeCursor();
-
-  // need to delete all reviews related to recipe as well
+  // need to delete all reviews related to recipe
   $query = "DELETE FROM review WHERE recipeID=:recipeID";
   $statement = $db->prepare($query);
   $statement->bindValue(':recipeID', $recipeID);
   $statement->execute();
   $statement->closeCursor();
 
+  //delete recipe from all carts
+  $query = "DELETE FROM recipecart WHERE recipeID=:recipeID";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':recipeID', $recipeID);
+  $statement->execute();
+  $statement->closeCursor();
+
+  //delete all ingredient associations
+  $query = "DELETE FROM recipeingredient WHERE recipeID=:recipeID";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':recipeID', $recipeID);
+  $statement->execute();
+  $statement->closeCursor();
+
+  //delete the recipe itself
+  $delete_from_recipe = "DELETE FROM recipe WHERE recipeID=:recipeID";
+  $statement = $db->prepare($delete_from_recipe);
+  $statement->bindValue(':recipeID', $recipeID);
+  $statement->execute();
+  $statement->closeCursor();
 }
 
 function getAllRecipesForUser($userID) {
