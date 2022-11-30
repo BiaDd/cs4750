@@ -10,11 +10,12 @@ if (!isset($_SESSION['authenticated'])) {
 
 $userID = $_SESSION['uid'];
 $recipe_info = getRecipe($_SESSION['recipeID']);
+$recipe_creator = getUser($recipe_info['userID']);
 $ingredients = getRecipeIngredients($_SESSION['recipeID']);
 $is_user_owner = isRecipeOwner($userID, $_SESSION['recipeID']);
 $recipes_in_cart = getRecipesInCartArray($_SESSION['uid']);
 $reviews = getReviews($_SESSION['recipeID']);
-
+$isFollowing = isFollowing($recipe_info['userID'], $userID);
 ?>
 
 
@@ -47,6 +48,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
     $reviews = getReviews($_SESSION['recipeID']);
     $recipe_info = getRecipe($_SESSION['recipeID']);
   }
+
+	if (!empty($_POST['follow'])) {
+		followUser($recipe_info['userID'], $userID);
+		header("Refresh:0");
+	}
+
+	if (!empty($_POST['unfollow'])) {
+		unfollowUser($recipe_info['userID'], $userID);
+		header("Refresh:0");
+	}
 }
 
 ?>
@@ -80,7 +91,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 
     <div class="card">
       <div class="card-body">
-          <h3 class="text-capitalize"><?php echo $recipe_info['recipeName']?></h3>
+          <h3 class="text-capitalize"><?php echo $recipe_info['recipeName'].' by '. $recipe_creator['username']?>
+						<form action="recipe.php" method="post">
+							<?php if($isFollowing): ?>
+							<input type="submit" name="unfollow" value="<?php echo 'Unfollow '.$recipe_creator['username']?>" class="btn btn-sm btn-danger"
+							title="Unfollow the creator of the recipe"/>
+							<?php else : ?>
+							<input type="submit" name="follow" value="<?php echo 'Follow '.$recipe_creator['username']?>" class="btn btn-sm btn-success"
+							title="Follow the creator of the recipe"/>
+							<?php endif; ?>
+						</form>
+					</h3>
           <div class="overflow-y">
             <p><?php echo $recipe_info['description']?></p>
           </div>
@@ -95,7 +116,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
             <?php endif; ?>
             <input type="hidden" name="recipe_to_use"
             value="<?php echo $_SESSION['recipeID'] ?>"/>
-
             <a href="#" class="btn btn-sm btn-warning" role="button"
                 data-bs-toggle="modal" data-bs-target="#ratingModal">
                 Rate
@@ -178,11 +198,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
           </div>
 
       </div>
+      <div class="m-3 p-2">
+      <h4>Recipe Total Price: $<?php echo $recipe_info['price']; ?> </h4>
+      <h4>Average Rating: <?php echo $recipe_info['rating']; ?> </h4>
+                  </div>
 
 
       <div class="d-flex">
               <div class="m-3 p-2" style="width: 60%">
-                  <h4>Average Rating: <?php echo $recipe_info['rating']; ?> </h4>
                   <br>
                   <h4>Reviews</h4>
                   <table class="w3-table table shadow w3-bordered w3-card-4 center" style="width:70%">

@@ -100,6 +100,20 @@ function setUser($userID, $username, $firstname, $lastname) {
 
 }
 
+function getFollowers($userID) {
+  global $db;
+  $query = "SELECT * FROM followers, user
+  WHERE followers.follower = user.userID
+  AND followee=:userID";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':userID', $userID);
+  $statement->execute();
+  $result = $statement->fetchAll();
+  $statement->closeCursor();
+  return $result;
+}
+
+
 
 function getEmails($userID) {
   global $db;
@@ -488,7 +502,7 @@ function leaveReview($recipeID, $userID, $rating, $comment) {
   $statement->bindValue(':rating', $average_rating);
   $statement->execute();
   $statement->closeCursor();
-
+  return;
 }
 
 function getAllRecipes(){
@@ -497,7 +511,47 @@ function getAllRecipes(){
   $statement = $db->prepare($query);
   $statement->execute();
   $result = $statement->fetchAll();
+  $statement->closeCursor();
   return $result;
+}
+
+function followUser($followeeID, $followerID) {
+  global $db;
+  $query = "INSERT INTO followers (followee, follower) VALUES (:followee, :follower)";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':followee', $followeeID);
+  $statement->bindValue(':follower', $followerID);
+  $statement->execute();
+  $statement->closeCursor();
+  return;
+}
+
+function unfollowUser($followeeID, $followerID) {
+  global $db;
+  $query = "DELETE FROM followers WHERE followee=:followeeID AND follower=:followerID";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':followeeID', $followeeID);
+  $statement->bindValue(':followerID', $followerID);
+  $statement->execute();
+  $statement->closeCursor();
+  return;
+}
+
+function isFollowing($followeeID, $followerID) {
+  global $db;
+  $query = "SELECT * FROM followers WHERE followee=:followeeID AND follower=:followerID";
+  $statement = $db->prepare($query);
+  $statement->bindValue(':followeeID', $followeeID);
+  $statement->bindValue(':followerID', $followerID);
+  $statement->execute();
+  $result = $statement->fetch();
+  $statement->closeCursor();
+
+  if (!empty($result)) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 
