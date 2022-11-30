@@ -257,8 +257,13 @@ function addRecipe($rname, $rdescription, $ringredients) {
 
   $getPrice =
   "SELECT table1.recipeID, SUM(table1.totalPrice) AS price
-  FROM (SELECT recipeingredient.ingredientID, recipeingredient.recipeID, recipeingredient.quantity * ingredient.price AS totalPrice FROM recipeingredient, ingredient WHERE ingredient.ingredientID = recipeingredient.ingredientID)
-  AS table1 GROUP BY recipeID";
+  FROM
+    (SELECT recipeingredient.ingredientID, recipeingredient.recipeID, recipeingredient.quantity * ingredient.price AS totalPrice
+     FROM recipeingredient, ingredient, recipe
+     WHERE ingredient.ingredientID = recipeingredient.ingredientID
+    AND recipe.recipeID = recipeingredient.recipeID
+    AND recipe.recipeID = $recipeID) AS table1
+    GROUP BY recipeID;";
   $statement = $db->prepare($getPrice);
   $statement->execute();
   $price = number_format($statement->fetch()["price"], 2);
